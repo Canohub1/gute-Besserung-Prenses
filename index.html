@@ -2,771 +2,169 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Für Prenses 👑💖</title>
-
-  <style>
-    :root{
-      --bg1:#ff7bb7;
-      --bg2:#ffd6c7;
-      --bg3:#8ee7ff;
-      --cardA: rgba(255,255,255,.20);
-      --cardB: rgba(255,255,255,.10);
-      --stroke: rgba(255,255,255,.24);
-      --text: rgba(255,255,255,.98);
-      --muted: rgba(255,255,255,.82);
-      --shadow: 0 22px 70px rgba(0,0,0,.22);
-      --radius: 28px;
-      --accent: #ffffff;
-      --glow: rgba(255,255,255,.55);
-      --modeName: "Romantic";
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      overflow:hidden;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 760px at 14% 12%, rgba(255,255,255,.30), transparent 55%),
-        radial-gradient(900px 650px at 82% 34%, rgba(255,255,255,.18), transparent 55%),
-        linear-gradient(135deg,var(--bg1),var(--bg2));
-      transition: background 600ms ease;
-    }
-
-    /* soft moving light blobs */
-    .blob{
-      position:absolute;
-      width: 520px;
-      height: 520px;
-      border-radius: 999px;
-      filter: blur(40px);
-      opacity:.28;
-      animation: drift 16s ease-in-out infinite;
-      pointer-events:none;
-      z-index:0;
-    }
-    .b1{ background: rgba(255,255,255,.55); left:-160px; top:-180px; }
-    .b2{ background: rgba(255,255,255,.35); right:-220px; top:40px; animation-duration: 19s; }
-    .b3{ background: rgba(255,255,255,.25); left:30%; bottom:-240px; animation-duration: 22s; }
-    @keyframes drift{
-      0%,100%{ transform: translate(0,0) scale(1); }
-      50%{ transform: translate(40px,-30px) scale(1.08); }
-    }
-
-    /* floating background emojis */
-    .floaty{
-      position:absolute;
-      left:var(--x);
-      top:110vh;
-      font-size: var(--s);
-      opacity:.55;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
-      animation: rise var(--d) linear infinite;
-      pointer-events:none;
-      transform: translateZ(0);
-      z-index:1;
-    }
-    @keyframes rise{
-      0%{ transform: translateY(0) rotate(0deg); opacity:0; }
-      10%{opacity:.55}
-      100%{ transform: translateY(-135vh) rotate(14deg); opacity:0;}
-    }
-
-    .wrap{
-      position:relative;
-      height:100%;
-      display:grid;
-      place-items:center;
-      padding:22px;
-      z-index:2;
-    }
-
-    .layout{
-      width:min(980px, 96vw);
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    @media (max-width: 860px){
-      .layout{ grid-template-columns: 1fr; }
-    }
-
-    .panel{
-      background: linear-gradient(180deg, var(--cardA), var(--cardB));
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .sheen{
-      position:absolute; inset:0;
-      background:
-        radial-gradient(240px 140px at 16% 6%, rgba(255,255,255,.22), transparent 65%),
-        radial-gradient(220px 140px at 86% 10%, rgba(255,255,255,.12), transparent 70%),
-        radial-gradient(360px 200px at 50% 110%, rgba(255,255,255,.10), transparent 62%);
-      pointer-events:none;
-      mix-blend-mode: screen;
-    }
-
-    .hero{
-      padding:22px 22px 18px;
-      display:grid;
-      grid-template-rows: auto auto auto;
-      gap:10px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .badge{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.25);
-      background: rgba(255,255,255,.14);
-      box-shadow: 0 12px 26px rgba(0,0,0,.12);
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .badge small{ opacity:.9; font-weight:800; }
-    .modeTag::after{ content: " " var(--modeName); }
-
-    h1{
-      margin:0;
-      font-size: clamp(30px, 4.8vw, 52px);
-      line-height:1.02;
-      text-shadow: 0 14px 40px rgba(0,0,0,.22);
-      letter-spacing:.2px;
-    }
-
-    .sub{
-      margin:0;
-      max-width: 62ch;
-      color: var(--muted);
-      font-size: clamp(16px, 2.4vw, 18px);
-      line-height:1.5;
-    }
-
-    .heroRow{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns: 230px 1fr;
-      gap:14px;
-      align-items:center;
-    }
-    @media (max-width: 560px){
-      .heroRow{ grid-template-columns: 1fr; }
-    }
-
-    .teddy{
-      width: 230px; height: 230px;
-      border-radius: 26px;
-      border:1px solid rgba(255,255,255,.22);
-      background: rgba(255,255,255,.14);
-      display:grid;
-      place-items:center;
-      box-shadow: 0 18px 46px rgba(0,0,0,.18);
-      filter: drop-shadow(0 18px 28px rgba(0,0,0,.16));
-      overflow:hidden;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      animation: floatBear 2.9s ease-in-out infinite;
-      position:relative;
-    }
-    @keyframes floatBear{
-      0%,100%{ transform: translateY(0) rotate(-.6deg); }
-      50%{ transform: translateY(-10px) rotate(.6deg); }
-    }
-    .teddy img{
-      width: 180px; height: 180px;
-      object-fit: contain;
-      pointer-events:none;
-      transform: translateY(6px);
-    }
-    .teddyFallback{
-      display:none;
-      font-size: 92px;
-      pointer-events:none;
-    }
-    .tapPill{
-      position:absolute;
-      bottom:10px;
-      left:50%;
-      transform: translateX(-50%);
-      padding:6px 10px;
-      border-radius:999px;
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.20);
-      font-size: 12px;
-      font-weight:900;
-      letter-spacing:.3px;
-    }
-
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
-
-    .btn{
-      appearance:none;
-      border:1px solid rgba(255,255,255,.26);
-      background: rgba(255,255,255,.14);
-      color:white;
-      padding:12px 14px;
-      border-radius: 16px;
-      font-weight: 950;
-      cursor:pointer;
-      box-shadow: 0 12px 26px rgba(0,0,0,.12);
-      transition: transform .12s ease, background .2s ease, border-color .2s ease;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      justify-content:center;
-    }
-    .btn:hover{ background: rgba(255,255,255,.20); border-color: rgba(255,255,255,.40); }
-    .btn:active{ transform: scale(.985); }
-
-    .btnPrimary{
-      background: rgba(255,255,255,.22);
-      border-color: rgba(255,255,255,.40);
-      box-shadow: 0 18px 40px rgba(0,0,0,.18);
-    }
-
-    .right{
-      padding:18px;
-      display:grid;
-      gap:12px;
-    }
-
-    .card{
-      padding:14px 14px;
-      border-radius: 20px;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.12);
-      box-shadow: 0 14px 34px rgba(0,0,0,.14);
-    }
-
-    .sectionTitle{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-weight: 950;
-      letter-spacing:.2px;
-      margin-bottom:10px;
-      opacity:.98;
-    }
-
-    .message{
-      min-height: 86px;
-      line-height:1.5;
-      color: rgba(255,255,255,.94);
-      font-weight: 650;
-    }
-    .cursor{ display:inline-block; width:10px; animation: blink 1s infinite; }
-    @keyframes blink{50%{opacity:0}}
-
-    .checklist{
-      display:grid;
-      gap:8px;
-    }
-    .item{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 10px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.10);
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform .12s ease, background .2s ease, border-color .2s ease;
-      font-weight:850;
-    }
-    .item:hover{ background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.26); }
-    .item:active{ transform: scale(.99); }
-    .dot{
-      width:18px; height:18px;
-      border-radius: 6px;
-      border:1px solid rgba(255,255,255,.28);
-      display:grid;
-      place-items:center;
-      background: rgba(0,0,0,.14);
-      font-size: 12px;
-    }
-    .done{
-      text-decoration: line-through;
-      opacity:.88;
-    }
-
-    /* ripple + particles */
-    .ripple{
-      position:absolute;
-      width:16px;height:16px;
-      border-radius:999px;
-      border:2px solid rgba(255,255,255,.9);
-      transform: translate(-50%,-50%);
-      animation: ripple 650ms ease-out forwards;
-      pointer-events:none;
-      z-index:50;
-    }
-    @keyframes ripple{
-      0%{opacity:1; transform:translate(-50%,-50%) scale(.7);}
-      100%{opacity:0; transform:translate(-50%,-50%) scale(8);}
-    }
-    .p{
-      position:absolute;
-      transform: translate(-50%,-50%);
-      pointer-events:none;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.14));
-      animation: pop 950ms ease-out forwards;
-      will-change: transform, opacity;
-      z-index:55;
-    }
-    @keyframes pop{
-      0%{ opacity:1; transform:translate(-50%,-50%) translate(0,0) scale(1); }
-      100%{ opacity:0; transform:translate(-50%,-50%) translate(var(--dx), var(--dy)) scale(.9); }
-    }
-
-    /* toast */
-    .toast{
-      position: fixed;
-      left:50%;
-      bottom:18px;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.25);
-      padding: 10px 14px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.26);
-      backdrop-filter: blur(12px);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .25s ease, transform .25s ease;
-      max-width: 92vw;
-      text-align:center;
-      font-weight:900;
-      z-index:80;
-    }
-    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
-
-    /* modal letter */
-    .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      place-items:center;
-      background: rgba(0,0,0,.45);
-      backdrop-filter: blur(8px);
-      z-index:120;
-      padding:16px;
-    }
-    .modal.show{ display:grid; }
-    .sheet{
-      width:min(720px, 94vw);
-      border-radius: 26px;
-      border:1px solid rgba(255,255,255,.22);
-      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.10));
-      box-shadow: 0 28px 90px rgba(0,0,0,.30);
-      padding:18px;
-      position:relative;
-      overflow:hidden;
-    }
-    .sheet h2{ margin:0 0 8px; font-size: 22px; }
-    .sheet p{ margin:0; color: rgba(255,255,255,.92); line-height:1.6; font-weight:650; }
-    .close{
-      position:absolute;
-      right:12px; top:12px;
-      width:40px;height:40px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.22);
-      background: rgba(0,0,0,.18);
-      color:white;
-      cursor:pointer;
-      font-weight:950;
-    }
-
-    /* reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      *{animation:none !important; transition:none !important;}
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prenses • Cozy Mode</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-
-  <div class="wrap">
-    <div class="layout">
-      <!-- LEFT: HERO -->
-      <section class="panel">
-        <div class="sheen"></div>
-        <div class="hero">
-          <div class="topbar">
-            <div class="badge"><span>👑</span><span>Prenses</span><small class="modeTag">•</small></div>
-            <div class="actions">
-              <button class="btn" id="btnMode" title="Stimmung wechseln">✨ Mood</button>
-              <button class="btn" id="btnMusic" title="Musik an/aus">🎵 Musik</button>
-              <button class="btn btnPrimary" id="btnLetter" title="Brief öffnen">💌 Brief öffnen</button>
-            </div>
-          </div>
-
-          <h1>Gute Besserung Prenses 👑💖</h1>
-          <p class="sub">Selbst krank strahlst du heller als jeder Stern ✨</p>
-
-          <div class="heroRow">
-            <div class="teddy" id="teddy" title="Tippe mich 🧸">
-              <img id="teddyImg" src="teddy.gif" alt="Süßer Teddybär" />
-              <div class="teddyFallback" id="teddyFallback">🧸</div>
-              <div class="tapPill">Tippen = Umarmung</div>
-            </div>
-
-            <div class="actions" style="justify-content:flex-start;">
-              <button class="btn btnPrimary" id="btnSmile">😄 Schick mir ein Lächeln</button>
-              <button class="btn" id="btnLove">❤️ Herz-Boost</button>
-              <button class="btn" id="btnFlowers">🌸 Blumenregen</button>
-              <button class="btn" id="btnConfetti">🎉 Konfetti</button>
-            </div>
-          </div>
-
-          <p class="sub" style="margin-top:10px;">Tipp: Tippe irgendwo auf den Screen — dann passieren Herzen & Magie ✨📱</p>
-        </div>
-      </section>
-
-      <!-- RIGHT: FEATURES -->
-      <aside class="panel">
-        <div class="sheen"></div>
-        <div class="right">
-          <div class="card">
-            <div class="sectionTitle"><span>💬 Live Nachricht</span><span style="opacity:.85;font-weight:900">Tippeffekt</span></div>
-            <div class="message" id="msg">
-              Tippe irgendwo oder drück einen Button… <span class="cursor">|</span>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="sectionTitle"><span>🫖 Mini Gesund-Werden Plan</span><span style="opacity:.85;font-weight:900">tap to check</span></div>
-            <div class="checklist" id="checklist">
-              <div class="item" data-key="tea"><div class="dot">☐</div><div>Tee trinken 🫖</div></div>
-              <div class="item" data-key="water"><div class="dot">☐</div><div>Wasser nicht vergessen 💧</div></div>
-              <div class="item" data-key="rest"><div class="dot">☐</div><div>Ausruhen & schlafen 😴</div></div>
-              <div class="item" data-key="warm"><div class="dot">☐</div><div>Warm bleiben 🧣</div></div>
-              <div class="item" data-key="smile"><div class="dot">☐</div><div>Einmal lächeln 😄</div></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="sectionTitle"><span>⚡ Quick Actions</span><span style="opacity:.85;font-weight:900">für Handy</span></div>
-            <div class="actions" style="justify-content:flex-start;">
-              <button class="btn" id="btnHug">🧸 Umarmung</button>
-              <button class="btn" id="btnStar">⭐ Sternenregen</button>
-              <button class="btn" id="btnReset">🧼 Reset</button>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
+  <div class="bg">
+    <div class="grain"></div>
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
   </div>
 
-  <div class="toast" id="toast">💌</div>
+  <main class="app" role="application" aria-label="Cozy App für Prenses">
+    <header class="topbar">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <div class="title">Gute Besserung, <span class="prenses">Prenses</span></div>
+          <div class="subtitle">Cozy Mode • ruhig, warm, sanft</div>
+        </div>
+      </div>
 
-  <!-- Modal Letter -->
-  <div class="modal" id="modal">
-    <div class="sheet">
-      <button class="close" id="close">✕</button>
-      <h2>💌 Für dich, Prenses</h2>
-      <p id="letterText">
-        Ich weiß, du bist gerade nicht fit. Aber selbst dann bist du wunderschön.
-        Ruh dich aus, lass dich verwöhnen (wenigstens digital 😄), und werd schnell gesund.
-        Ich bin bei dir. 👑💖🧸
-      </p>
-    </div>
-  </div>
+      <button class="chip" id="btnCozy" aria-pressed="true" title="Cozy Mode an/aus">
+        🌙 Cozy
+      </button>
+    </header>
 
-<script>
-  // ===== helpers =====
-  const toast = document.getElementById("toast");
-  const msgEl = document.getElementById("msg");
+    <section class="card hero" data-screen="home">
+      <div class="hero-left">
+        <h1>Du musst heute nichts schaffen.</h1>
+        <p class="lead">
+          Ruh dich aus. Trink was Warmes. Atme ruhig.
+          Ich bin da — ohne Stress, ohne Druck.
+        </p>
 
-  const teddyImg = document.getElementById("teddyImg");
-  const teddyFallback = document.getElementById("teddyFallback");
-  const teddy = document.getElementById("teddy");
+        <div class="hero-actions">
+          <button class="btn primary" id="btnHug">Umarmung senden</button>
+          <button class="btn" id="btnNote">Süße Worte</button>
+        </div>
 
-  const EMOJIS = ["❤️","💖","💗","💘","✨","🌸","🌷","👑","💐","😍","🥺","⭐️","🧸"];
-  const COMPLIMENTS = [
-    "Prenses, du bist stärker als du denkst 👑💪",
-    "Ich schick dir eine Umarmung per WLAN 🫂📶",
-    "Ein Lächeln steht dir sogar mit Fieber 😄🌡️",
-    "Gleich bist du wieder fit — und wieder viel zu süß 😌💖",
-    "Du fehlst mir. Werd schnell gesund 🧸❤️",
-    "Wenn du schläfst, heilt die Welt dich ein bisschen schneller 😴✨"
-  ];
-  const LONG_MESSAGES = [
-    "Prenses… ruh dich aus. Heute ist dein Job nur: gesund werden. 👑💖",
-    "Ich wünschte ich könnte dir Tee bringen, dich zudecken und einfach da sein. 🫖🧸",
-    "Du bist mein Lieblingsmensch. Ich will dich lächeln sehen 😄💐",
-    "Wenn du klickst, schick ich dir eine Umarmung. Wenn du zweimal klickst, zwei. 🧸🧸💖"
-  ];
+        <div class="mini-status" id="miniStatus">
+          <span class="pill">✨ Warm</span>
+          <span class="pill">🫖 Tee</span>
+          <span class="pill">😴 Ruhe</span>
+        </div>
+      </div>
 
-  function rand(min,max){ return Math.random()*(max-min)+min; }
-  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+      <div class="hero-right">
+        <button class="teddy" id="teddy" title="Tippe für eine sanfte Umarmung">
+          <img id="teddyImg" src="assets/teddy.gif" alt="Teddybär" />
+          <div class="teddy-fallback" id="teddyFallback">🧸</div>
+          <div class="teddy-hint">tap</div>
+        </button>
 
-  function showToast(text){
-    toast.textContent = text;
-    toast.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=>toast.classList.remove("show"), 1700);
-  }
+        <div class="soft-message" id="softMessage">
+          <div class="soft-title">💌</div>
+          <div class="soft-text" id="softText">Tippe auf den Teddy…</div>
+        </div>
+      </div>
+    </section>
 
-  function ripple(x,y){
-    const r = document.createElement("div");
-    r.className = "ripple";
-    r.style.left = x + "px";
-    r.style.top = y + "px";
-    document.body.appendChild(r);
-    setTimeout(()=>r.remove(), 700);
-  }
+    <section class="card" data-screen="games" hidden>
+      <div class="section-head">
+        <h2>Games</h2>
+        <p>Ruhige Mini-Spiele – kein Stress, keine Timer.</p>
+      </div>
 
-  function burst(x,y, amount=16, palette=EMOJIS){
-    for(let i=0;i<amount;i++){
-      const p = document.createElement("div");
-      p.className = "p";
-      p.textContent = pick(palette);
-      p.style.left = x + "px";
-      p.style.top = y + "px";
-      p.style.fontSize = rand(16,38) + "px";
-      p.style.setProperty("--dx", rand(-160,160) + "px");
-      p.style.setProperty("--dy", rand(-170,110) + "px");
-      document.body.appendChild(p);
-      setTimeout(()=>p.remove(), 1000);
-    }
-  }
+      <div class="tabs">
+        <button class="tab active" data-game="bubbles">Bubble Calm</button>
+        <button class="tab" data-game="hearts">Heart Collector</button>
+      </div>
 
-  function fall(amount=22, emoji="🌸"){
-    const w = window.innerWidth;
-    for(let i=0;i<amount;i++){
-      const f = document.createElement("div");
-      f.className = "p";
-      f.textContent = emoji;
-      f.style.left = rand(0,w) + "px";
-      f.style.top = "-10px";
-      f.style.fontSize = rand(18,36) + "px";
-      f.style.setProperty("--dx", rand(-55,55) + "px");
-      f.style.setProperty("--dy", rand(560,840) + "px");
-      f.style.animationDuration = rand(1200,2000) + "ms";
-      document.body.appendChild(f);
-      setTimeout(()=>f.remove(), 2300);
-    }
-  }
+      <div class="game-wrap">
+        <div class="game-panel" id="gameBubbles">
+          <div class="game-top">
+            <div>
+              <div class="game-title">Bubble Calm</div>
+              <div class="game-sub">Tippe Blasen an. Sanft. Beruhigend.</div>
+            </div>
+            <div class="score">
+              <span>Pop</span>
+              <strong id="bubbleScore">0</strong>
+            </div>
+          </div>
+          <div class="playfield" id="bubbleField" aria-label="Bubble Game"></div>
+          <div class="game-actions">
+            <button class="btn" id="bubbleMore">Mehr Blasen</button>
+            <button class="btn ghost" id="bubbleClear">Reset</button>
+          </div>
+        </div>
 
-  // ===== typing effect =====
-  function escapeHtml(s){
-    return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-  }
-  function typeMessage(text){
-    clearInterval(typeMessage._i);
-    msgEl.innerHTML = '<span class="cursor">|</span>';
-    let i = 0;
-    typeMessage._i = setInterval(()=>{
-      i++;
-      const shown = text.slice(0,i);
-      msgEl.innerHTML = escapeHtml(shown) + ' <span class="cursor">|</span>';
-      if(i >= text.length){
-        clearInterval(typeMessage._i);
-        msgEl.innerHTML = escapeHtml(text);
-      }
-    }, 18);
-  }
+        <div class="game-panel" id="gameHearts" hidden>
+          <div class="game-top">
+            <div>
+              <div class="game-title">Heart Collector</div>
+              <div class="game-sub">Sammle Herzen. Ganz langsam.</div>
+            </div>
+            <div class="score">
+              <span>Hearts</span>
+              <strong id="heartScore">0</strong>
+            </div>
+          </div>
+          <div class="playfield" id="heartField" aria-label="Heart Game"></div>
+          <div class="game-actions">
+            <button class="btn" id="heartSpawn">Herzen erscheinen lassen</button>
+            <button class="btn ghost" id="heartClear">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  // ===== background floaters =====
-  let floatEmojiPool = ["❤️","✨","🌸"];
-  function spawnFloaty(){
-    const el = document.createElement("div");
-    el.className = "floaty";
-    el.textContent = pick(floatEmojiPool);
-    el.style.setProperty("--x", rand(0,100) + "vw");
-    el.style.setProperty("--s", rand(16,46) + "px");
-    el.style.setProperty("--d", rand(6,12) + "s");
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(), 13000);
-  }
-  setInterval(spawnFloaty, 520);
-  for(let i=0;i<12;i++) setTimeout(spawnFloaty, i*180);
+    <section class="card" data-screen="words" hidden>
+      <div class="section-head">
+        <h2>Words</h2>
+        <p>Schöne Worte, clean & cozy. Wisch oder tippe weiter.</p>
+      </div>
 
-  // ===== teddy image fallback =====
-  teddyImg.addEventListener("error", () => {
-    teddyImg.style.display = "none";
-    teddyFallback.style.display = "block";
-    showToast("🧸 teddy.gif fehlt noch → ins Repo hochladen");
-  });
+      <div class="quote-card" id="quoteCard">
+        <div class="quote-mark">“</div>
+        <div class="quote-text" id="quoteText"></div>
+        <div class="quote-meta">
+          <span id="quoteIndex">1</span>/<span id="quoteTotal">1</span>
+        </div>
+      </div>
 
-  // ===== modal letter =====
-  const modal = document.getElementById("modal");
-  document.getElementById("btnLetter").addEventListener("click", ()=>{
-    modal.classList.add("show");
-    typeMessage("💌 Brief geöffnet…");
-    showToast("💌 Für Prenses");
-    burst(window.innerWidth*0.5, window.innerHeight*0.25, 22, ["💌","✨","💖","❤️"]);
-  });
-  document.getElementById("close").addEventListener("click", ()=> modal.classList.remove("show"));
-  modal.addEventListener("click", (e)=>{ if(e.target === modal) modal.classList.remove("show"); });
+      <div class="row">
+        <button class="btn ghost" id="prevQuote">Zurück</button>
+        <button class="btn primary" id="newQuote">Neue Karte</button>
+        <button class="btn ghost" id="nextQuote">Weiter</button>
+      </div>
+    </section>
 
-  // ===== global tap magic =====
-  window.addEventListener("pointerdown", (e)=>{
-    ripple(e.clientX, e.clientY);
-    burst(e.clientX, e.clientY, 14, ["💖","❤️","✨","🌸","⭐️"]);
-    showToast(pick(COMPLIMENTS));
-  }, {passive:true});
+    <section class="card" data-screen="calm" hidden>
+      <div class="section-head">
+        <h2>Calm</h2>
+        <p>Ein kurzer Atemrhythmus. 30 Sekunden reichen.</p>
+      </div>
 
-  // ===== actions =====
-  function hug(){
-    const r = teddy.getBoundingClientRect();
-    burst(r.left+r.width/2, r.top+r.height/2, 34, ["🧸","💖","❤️","✨","🥺"]);
-    typeMessage("Teddy-Umarmung für dich, Prenses 🧸💖 Ruh dich aus und werd schnell gesund…");
-    showToast("🧸 Umarmung geschickt");
-  }
-  teddy.addEventListener("click", hug);
-  document.getElementById("btnHug").addEventListener("click", hug);
+      <div class="breath">
+        <div class="ring" id="ring"></div>
+        <div class="breath-text">
+          <div class="breath-title" id="breathTitle">Einatmen</div>
+          <div class="breath-sub" id="breathSub">Langsam…</div>
+        </div>
+      </div>
 
-  document.getElementById("btnSmile").addEventListener("click", ()=>{
-    burst(window.innerWidth*0.52, window.innerHeight*0.42, 28, ["😄","✨","💖","❤️","🧸"]);
-    typeMessage(pick(LONG_MESSAGES));
-    showToast("😄 Lächeln gesendet");
-  });
+      <div class="row">
+        <button class="btn primary" id="breathStart">Start</button>
+        <button class="btn ghost" id="breathStop">Stop</button>
+      </div>
+    </section>
 
-  document.getElementById("btnLove").addEventListener("click", (e)=>{
-    const r = e.target.getBoundingClientRect();
-    burst(r.left+r.width/2, r.top+r.height/2, 26, ["❤️","💖","💘","💗","😍","🥺"]);
-    typeMessage("Für dich, Prenses 💌❤️ Ich denk an dich.");
-  });
+    <nav class="nav">
+      <button class="navbtn active" data-go="home">Home</button>
+      <button class="navbtn" data-go="games">Games</button>
+      <button class="navbtn" data-go="words">Words</button>
+      <button class="navbtn" data-go="calm">Calm</button>
+    </nav>
+  </main>
 
-  document.getElementById("btnFlowers").addEventListener("click", ()=>{
-    fall(38, "🌸"); fall(14, "💐");
-    typeMessage("Blumenregen nur für dich 🌸💐");
-    showToast("🌸 Blumenregen!");
-  });
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  document.getElementById("btnConfetti").addEventListener("click", ()=>{
-    burst(window.innerWidth*0.5, window.innerHeight*0.34, 38, ["🎉","✨","👑","💖","❤️"]);
-    fall(26, "🎉");
-    typeMessage("Konfetti für die Prenses 🎉👑");
-    showToast("🎉 Party!");
-  });
-
-  document.getElementById("btnStar").addEventListener("click", ()=>{
-    fall(40, "⭐️");
-    typeMessage("Sternenregen — weil du heller strahlst als jeder Stern ✨⭐️");
-    showToast("⭐️ Sterne!");
-  });
-
-  document.getElementById("btnReset").addEventListener("click", ()=>{
-    typeMessage("Alles reset… aber Gefühle bleiben 💖");
-    showToast("🧼 Reset");
-  });
-
-  // ===== checklist =====
-  document.getElementById("checklist").addEventListener("click", (e)=>{
-    const item = e.target.closest(".item");
-    if(!item) return;
-    item.classList.toggle("done");
-    const dot = item.querySelector(".dot");
-    const done = item.classList.contains("done");
-    dot.textContent = done ? "✓" : "☐";
-    showToast(done ? "✅ Sehr gut, Prenses!" : "↩️ Okay!");
-    const r = item.getBoundingClientRect();
-    burst(r.left + r.width*0.5, r.top + r.height*0.5, 16, done ? ["✅","✨","💖"] : ["↩️","✨"]);
-  });
-
-  // ===== Mood switch =====
-  const modes = [
-    {name:"Romantic", bg:["#ff7bb7","#ffd6c7"], float:["❤️","✨","🌸"]},
-    {name:"Cozy",    bg:["#ffb36b","#ffd6c7"], float:["🧸","✨","💖"]},
-    {name:"Party",   bg:["#6b8bff","#8ee7ff"], float:["🎉","✨","💖","⭐️"]},
-  ];
-  let modeIndex = 0;
-  function applyMode(){
-    const m = modes[modeIndex];
-    document.documentElement.style.setProperty("--bg1", m.bg[0]);
-    document.documentElement.style.setProperty("--bg2", m.bg[1]);
-    document.documentElement.style.setProperty("--modeName", `"${m.name}"`);
-    floatEmojiPool = m.float;
-    typeMessage("Mood gewechselt: " + m.name + " ✨");
-    showToast("✨ " + m.name);
-  }
-  document.getElementById("btnMode").addEventListener("click", ()=>{
-    modeIndex = (modeIndex + 1) % modes.length;
-    applyMode();
-  });
-
-  // ===== Music (no external files) =====
-  let audioCtx = null, musicOn = false, musicTimer = null;
-  function ensureAudio(){
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if(audioCtx.state === "suspended") audioCtx.resume();
-  }
-  function playTone(freq, durMs){
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = "sine";
-    o.frequency.value = freq;
-    g.gain.value = 0.0001;
-    o.connect(g); g.connect(audioCtx.destination);
-    const t0 = audioCtx.currentTime;
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(0.12, t0 + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + durMs/1000);
-    o.start(t0);
-    o.stop(t0 + durMs/1000 + 0.02);
-  }
-  function startMusic(){
-    ensureAudio();
-    if(musicOn) return;
-    musicOn = true;
-    showToast("🎵 Musik läuft");
-    const melody = [[659,170],[784,170],[880,220],[784,170],[659,170],[587,210],[659,220],[784,240]];
-    let i=0;
-    musicTimer = setInterval(()=>{
-      if(!musicOn) return;
-      const [f,d]=melody[i];
-      playTone(f,d);
-      i=(i+1)%melody.length;
-    }, 215);
-  }
-  function stopMusic(){
-    musicOn = false;
-    clearInterval(musicTimer);
-    musicTimer = null;
-    showToast("🛑 Musik aus");
-  }
-  document.getElementById("btnMusic").addEventListener("click", ()=>{
-    ensureAudio();
-    if(!musicOn) startMusic(); else stopMusic();
-  });
-
-  // initial
-  setTimeout(()=>typeMessage("Prenses… klick irgendwo. Ich hab dir Magie gebaut. 👑💖"), 650);
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
