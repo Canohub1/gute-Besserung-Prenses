@@ -1,159 +1,174 @@
-// ===== tiny helpers =====
-const $ = (q, root=document) => root.querySelector(q);
-const $$ = (q, root=document) => Array.from(root.querySelectorAll(q));
-const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+// helpers
+const $ = (q, r=document) => r.querySelector(q);
+const $$ = (q, r=document) => Array.from(r.querySelectorAll(q));
+const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
 const rand = (a,b) => Math.random()*(b-a)+a;
 
 const toast = $("#toast");
-function showToast(text){
-  toast.textContent = text;
+function showToast(t){
+  toast.textContent = t;
   toast.classList.add("show");
   clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=>toast.classList.remove("show"), 1500);
+  showToast._t = setTimeout(()=>toast.classList.remove("show"), 1400);
 }
 
-// ===== Cozy night toggle =====
-const btnCozy = $("#btnCozy");
-let cozyOn = true;
-function setCozy(on){
-  cozyOn = on;
-  btnCozy.setAttribute("aria-pressed", String(on));
-  // optional auto-night: keep cozy but also night switch with toggle
-  document.body.classList.toggle("cozy-night", !on ? false : document.body.classList.contains("cozy-night"));
+// ---------- global state ----------
+let cozyPoints = 0;
+let soundOn = true;
+let trailSoftness = 1.0; // affects trail spread
+const unlockTarget = 30;
+
+function setPoints(delta){
+  cozyPoints = Math.max(0, cozyPoints + delta);
+  $("#cozyPoints").textContent = String(cozyPoints);
+  const pct = Math.min(100, Math.round((cozyPoints / unlockTarget) * 100));
+  $("#unlockPct").textContent = String(pct);
+
+  const unlocked = cozyPoints >= unlockTarget;
+  $("#openGift").disabled = !unlocked;
+  $("#lockPill").textContent = unlocked ? "🔓 Unlocked" : "🔒 Locked";
+  if(unlocked) $("#giftText").textContent = "Okay… du hast es freigeschaltet. Öffne es. 👑";
 }
-btnCozy.addEventListener("click", ()=>{
-  // toggle night mode instead: cozy button = night
-  document.body.classList.toggle("cozy-night");
-  showToast(document.body.classList.contains("cozy-night") ? "🌙 Night Cozy" : "☀️ Day Cozy");
+
+function moodLabel(kind){
+  const map = { tea:"Warm", rest:"Ruhig", warm:"Cozy", smile:"Leicht" };
+  $("#mood").textContent = map[kind] || "Warm";
+}
+
+// ---------- theme + sound ----------
+$("#btnTheme").addEventListener("click", ()=>{
+  document.body.classList.toggle("dark");
+  showToast(document.body.classList.contains("dark") ? "🌙 Night Cozy" : "☀️ Day Cozy");
+});
+$("#btnSound").addEventListener("click", ()=>{
+  soundOn = !soundOn;
+  $("#btnSound").textContent = soundOn ? "🔈" : "🔇";
+  showToast(soundOn ? "Sound an" : "Sound aus");
 });
 
-// ===== Teddy (local gif with fallback) =====
+// soft click sound (no external file)
+let audioCtx = null;
+function tick(freq=520, ms=70){
+  if(!soundOn) return;
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = "sine";
+  o.frequency.value = freq;
+  g.gain.value = 0.0001;
+  o.connect(g); g.connect(audioCtx.destination);
+
+  const t0 = audioCtx.currentTime;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.08, t0 + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + ms/1000);
+  o.start(t0);
+  o.stop(t0 + ms/1000 + 0.02);
+}
+
+// ---------- navigation ----------
+const screens = $$("[data-screen]");
+const navBtns = $$(".navBtn");
+
+function go(name){
+  screens.forEach(s => s.classList.toggle("show", s.dataset.screen === name));
+  navBtns.forEach(b => b.classList.toggle("active", b.dataset.go === name));
+  tick(480,60);
+}
+navBtns.forEach(b => b.addEventListener("click", ()=>go(b.dataset.go)));
+
+$("#btnWords").addEventListener("click", ()=>go("words"));
+$("#btnPlay").addEventListener("click", ()=>go("arcade"));
+
+// ---------- teddy + words ----------
 const teddyImg = $("#teddyImg");
 const teddyFallback = $("#teddyFallback");
-const softText = $("#softText");
+const noteText = $("#noteText");
 
-const HUG_LINES = [
-  "Eine sanfte Umarmung… ganz ruhig. 🤍",
-  "Prenses, du musst heute nur atmen. Mehr nicht.",
-  "Ich bin da. Leise. Warm. Echt.",
-  "Wenn du müde bist: ruh dich aus. Ich halte die Welt kurz an.",
+const TEDDY_LINES = [
+  "Atme langsam. Du bist sicher. Ich bin da.",
+  "Du musst heute nichts beweisen. Ruh dich aus.",
+  "Warm bleiben. Tee. Ruhe. Und ein kleines Lächeln später.",
+  "Wenn’s schwer ist, machen wir’s weich.",
+  "Prenses, du bist auch in leise wunderschön.",
 ];
 
 teddyImg.addEventListener("error", ()=>{
   teddyImg.style.display = "none";
   teddyFallback.style.display = "block";
-  softText.textContent = "🧸 (GIF fehlt) – aber die Umarmung ist da.";
+  noteText.textContent = "🧸 (GIF fehlt) – aber die Message bleibt.";
 });
 
 function hug(){
-  softText.textContent = pick(HUG_LINES);
+  noteText.textContent = pick(TEDDY_LINES);
+  setPoints(2);
+  tick(560,70);
   showToast("Umarmung gesendet");
 }
 $("#teddy").addEventListener("click", hug);
 $("#btnHug").addEventListener("click", hug);
 
-$("#btnNote").addEventListener("click", ()=>{
-  // jump to words screen
-  navigate("words");
-  showToast("💌 Words");
-});
-
-// ===== Navigation =====
-const screens = $$("[data-screen]");
-const navBtns = $$(".navbtn");
-
-function navigate(name){
-  screens.forEach(s => {
-    const is = s.getAttribute("data-screen") === name;
-    s.hidden = !is;
-  });
-  navBtns.forEach(b => b.classList.toggle("active", b.dataset.go === name));
-}
-navBtns.forEach(b => b.addEventListener("click", ()=> navigate(b.dataset.go)));
-
-// ===== Words (cozy cards) =====
-const QUOTES = [
-  "Ruh dich aus. Die Welt kann warten.",
-  "Du bist genug — auch wenn du heute nur liegst.",
-  "Wenn du müde bist, ist Pause kein Fehler.",
-  "Ich bin da. Ohne Druck. Ohne Erwartungen.",
-  "Heute: weich sein. Warm bleiben. Langsam atmen.",
-  "Dein Lächeln kommt zurück — Schritt für Schritt.",
-  "Du musst niemandem beweisen, dass du stark bist. Du bist es schon.",
-  "Wenn’s schwer ist: wir machen es leichter. Zusammen."
-];
-
-let qIndex = 0;
-$("#quoteTotal").textContent = String(QUOTES.length);
-
-function renderQuote(i){
-  qIndex = (i + QUOTES.length) % QUOTES.length;
-  $("#quoteText").textContent = QUOTES[qIndex];
-  $("#quoteIndex").textContent = String(qIndex + 1);
-}
-renderQuote(0);
-
-$("#newQuote").addEventListener("click", ()=> renderQuote(qIndex + 1));
-$("#nextQuote").addEventListener("click", ()=> renderQuote(qIndex + 1));
-$("#prevQuote").addEventListener("click", ()=> renderQuote(qIndex - 1));
-
-// swipe on quote card (mobile)
-let sx=0, sy=0;
-const quoteCard = $("#quoteCard");
-quoteCard.addEventListener("pointerdown", (e)=>{ sx=e.clientX; sy=e.clientY; });
-quoteCard.addEventListener("pointerup", (e)=>{
-  const dx = e.clientX - sx;
-  const dy = e.clientY - sy;
-  if(Math.abs(dx) > 45 && Math.abs(dy) < 80){
-    renderQuote(qIndex + (dx < 0 ? 1 : -1));
-    showToast(dx < 0 ? "Weiter" : "Zurück");
-  }
-});
-
-// ===== Games Tabs =====
-const tabs = $$(".tab");
-const gameBubbles = $("#gameBubbles");
-const gameHearts  = $("#gameHearts");
-
-tabs.forEach(t => t.addEventListener("click", ()=>{
-  tabs.forEach(x => x.classList.toggle("active", x === t));
-  const g = t.dataset.game;
-  gameBubbles.hidden = g !== "bubbles";
-  gameHearts.hidden  = g !== "hearts";
+$$(".chip").forEach(c => c.addEventListener("click", ()=>{
+  const k = c.dataset.boost;
+  moodLabel(k);
+  setPoints(1);
+  tick(640,55);
+  showToast("Cozy +1");
 }));
 
-// ===== Bubble Calm =====
+// ---------- global tap ripple ----------
+window.addEventListener("pointerdown", (e)=>{
+  const r = document.createElement("div");
+  r.className = "tapRipple";
+  r.style.left = e.clientX + "px";
+  r.style.top = e.clientY + "px";
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(), 650);
+}, {passive:true});
+
+// ---------- arcade tabs ----------
+const tabs = $$(".tab");
+const panels = $$("[data-panel]");
+tabs.forEach(t => t.addEventListener("click", ()=>{
+  tabs.forEach(x => x.classList.toggle("active", x===t));
+  const key = t.dataset.tab;
+  panels.forEach(p => p.classList.toggle("show", p.dataset.panel === key));
+  tick(520,55);
+}));
+
+// ---------- Game 1: Zen Bubbles ----------
 const bubbleField = $("#bubbleField");
 let bubbleScore = 0;
 
 function spawnBubble(){
   const b = document.createElement("div");
   b.className = "bubble";
-  const size = rand(32, 68);
-  b.style.setProperty("--size", size + "px");
+  b.style.setProperty("--s", rand(28, 68) + "px");
   b.style.setProperty("--x", rand(8, 92) + "%");
-  b.style.setProperty("--dur", rand(6.5, 12.5) + "s");
+  b.style.setProperty("--d", rand(6.8, 12.8) + "s");
   bubbleField.appendChild(b);
 
   b.addEventListener("click", ()=>{
     b.classList.add("pop");
     bubbleScore++;
     $("#bubbleScore").textContent = String(bubbleScore);
-    setTimeout(()=> b.remove(), 320);
+    setPoints(1);
+    tick(720,45);
+    setTimeout(()=>b.remove(), 280);
   });
 
-  // cleanup
-  setTimeout(()=> b.remove(), 14000);
+  setTimeout(()=>b.remove(), 14000);
 }
 
 function seedBubbles(n=10){
-  for(let i=0;i<n;i++) setTimeout(spawnBubble, i*260);
+  for(let i=0;i<n;i++) setTimeout(spawnBubble, i*240);
 }
 seedBubbles(10);
 
-$("#bubbleMore").addEventListener("click", ()=> seedBubbles(8));
-$("#bubbleClear").addEventListener("click", ()=>{
+$("#bubbleMore").addEventListener("click", ()=>seedBubbles(10));
+$("#bubbleReset").addEventListener("click", ()=>{
   bubbleField.innerHTML = "";
   bubbleScore = 0;
   $("#bubbleScore").textContent = "0";
@@ -161,83 +176,199 @@ $("#bubbleClear").addEventListener("click", ()=>{
   showToast("Reset");
 });
 
-// ===== Heart Collector (slow) =====
-const heartField = $("#heartField");
-let heartScore = 0;
+// ---------- Game 2: Memory Match ----------
+const icons = ["👑","🧸","✨","🫖","🌙","💛"];
+let memory = [];
+let first = null;
+let lock = false;
+let moves = 0;
 
-function spawnHeart(){
-  const h = document.createElement("div");
-  h.className = "heart";
-  h.textContent = pick(["❤","♥","💗","💖"]);
-  h.style.setProperty("--size", rand(26, 44) + "px");
-  h.style.setProperty("--x", rand(10, 90) + "%");
-  h.style.setProperty("--dur", rand(7.5, 13.5) + "s");
-  heartField.appendChild(h);
-
-  h.addEventListener("click", ()=>{
-    h.classList.add("pop");
-    heartScore++;
-    $("#heartScore").textContent = String(heartScore);
-    setTimeout(()=> h.remove(), 320);
-  });
-
-  setTimeout(()=> h.remove(), 15000);
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
 }
 
-function seedHearts(n=8){
-  for(let i=0;i<n;i++) setTimeout(spawnHeart, i*340);
-}
+function buildMemory(){
+  const grid = $("#memoryGrid");
+  grid.innerHTML = "";
+  moves = 0;
+  $("#moves").textContent = "0";
+  first = null;
+  lock = false;
 
-$("#heartSpawn").addEventListener("click", ()=> seedHearts(10));
-$("#heartClear").addEventListener("click", ()=>{
-  heartField.innerHTML = "";
-  heartScore = 0;
-  $("#heartScore").textContent = "0";
-  showToast("Reset");
-});
+  memory = shuffle([...icons, ...icons]).map((v, idx)=>({ id: idx, v, matched:false }));
 
-// ===== Calm breathing =====
-const ring = $("#ring");
-const breathTitle = $("#breathTitle");
-const breathSub = $("#breathSub");
-
-let breathTimer = null;
-let phase = 0; // 0 inhale, 1 exhale
-
-function setPhase(p){
-  phase = p;
-  if(phase === 0){
-    breathTitle.textContent = "Einatmen";
-    breathSub.textContent = "Langsam… 4 Sekunden";
-  } else {
-    breathTitle.textContent = "Ausatmen";
-    breathSub.textContent = "Sanft… 6 Sekunden";
+  for(const m of memory){
+    const card = document.createElement("div");
+    card.className = "mCard";
+    card.dataset.id = String(m.id);
+    card.innerHTML = `
+      <div class="face back">✦</div>
+      <div class="face front">${m.v}</div>
+    `;
+    card.addEventListener("click", ()=>flip(card));
+    grid.appendChild(card);
   }
 }
 
-$("#breathStart").addEventListener("click", ()=>{
-  if(breathTimer) return;
-  ring.classList.add("breathing");
-  setPhase(0);
-  showToast("Start");
+function flip(cardEl){
+  if(lock) return;
+  const id = Number(cardEl.dataset.id);
+  const m = memory.find(x => x.id === id);
+  if(!m || m.matched) return;
+  if(cardEl.classList.contains("flipped")) return;
 
-  // Cozy rhythm: inhale 4s, exhale 6s
-  let t = 0;
-  breathTimer = setInterval(()=>{
-    t++;
-    if(phase === 0 && t >= 4){ setPhase(1); t=0; }
-    else if(phase === 1 && t >= 6){ setPhase(0); t=0; }
-  }, 1000);
+  cardEl.classList.add("flipped");
+  tick(520,45);
+
+  if(!first){
+    first = { id, v: m.v, el: cardEl };
+    return;
+  }
+
+  moves++;
+  $("#moves").textContent = String(moves);
+
+  const second = { id, v: m.v, el: cardEl };
+  if(first.v === second.v){
+    memory.find(x=>x.id===first.id).matched = true;
+    memory.find(x=>x.id===second.id).matched = true;
+    setPoints(3);
+    showToast("Match +3");
+    first = null;
+
+    // win check
+    if(memory.every(x=>x.matched)){
+      showToast("Perfekt. Cozy Win 👑");
+      setPoints(5);
+    }
+  } else {
+    lock = true;
+    setTimeout(()=>{
+      first.el.classList.remove("flipped");
+      second.el.classList.remove("flipped");
+      first = null;
+      lock = false;
+    }, 520);
+  }
+}
+
+$("#memoryNew").addEventListener("click", ()=>{ buildMemory(); showToast("Neu gemischt"); });
+$("#memoryReset").addEventListener("click", ()=>{ buildMemory(); showToast("Reset"); });
+buildMemory();
+
+// ---------- Game 3: Glow Trail ----------
+const trailPad = $("#trailPad");
+let strokes = 0;
+let drawing = false;
+let last = null;
+
+function spark(x,y){
+  const s = document.createElement("div");
+  s.className = "spark";
+  s.style.left = x + "px";
+  s.style.top = y + "px";
+  s.style.setProperty("--dx", rand(-24,24) * trailSoftness + "px");
+  s.style.setProperty("--dy", rand(-24,24) * trailSoftness + "px");
+  trailPad.appendChild(s);
+  setTimeout(()=>s.remove(), 950);
+}
+
+trailPad.addEventListener("pointerdown", (e)=>{
+  drawing = true;
+  last = { x: e.offsetX, y: e.offsetY };
+  trailPad.setPointerCapture(e.pointerId);
+  tick(420,40);
+}, {passive:true});
+
+trailPad.addEventListener("pointermove", (e)=>{
+  if(!drawing) return;
+  const x = e.offsetX, y = e.offsetY;
+
+  // interpolate for smoothness
+  if(last){
+    const dx = x - last.x, dy = y - last.y;
+    const steps = Math.max(1, Math.floor(Math.hypot(dx,dy)/10));
+    for(let i=1;i<=steps;i++){
+      spark(last.x + dx*(i/steps), last.y + dy*(i/steps));
+    }
+  } else {
+    spark(x,y);
+  }
+  last = { x, y };
+}, {passive:true});
+
+trailPad.addEventListener("pointerup", (e)=>{
+  if(!drawing) return;
+  drawing = false;
+  last = null;
+  strokes++;
+  $("#strokes").textContent = String(strokes);
+  setPoints(1);
+  showToast("Cozy +1");
+}, {passive:true});
+
+$("#trailClear").addEventListener("click", ()=>{
+  trailPad.querySelectorAll(".spark").forEach(n=>n.remove());
+  showToast("Clear");
+});
+$("#trailSoft").addEventListener("click", ()=>{
+  trailSoftness = trailSoftness === 1.0 ? 1.8 : 1.0;
+  showToast(trailSoftness === 1.8 ? "Weicher ✨" : "Normal");
 });
 
-$("#breathStop").addEventListener("click", ()=>{
-  clearInterval(breathTimer);
-  breathTimer = null;
-  ring.classList.remove("breathing");
-  breathTitle.textContent = "Einatmen";
-  breathSub.textContent = "Langsam…";
-  showToast("Stop");
+// ---------- Words cards ----------
+const QUOTES = [
+  "Du musst heute nur atmen. Mehr nicht.",
+  "Ruh dich aus — das ist kein Rückschritt, das ist Pflege.",
+  "Leise Tage sind auch wertvoll.",
+  "Ich bin da. Nicht laut. Nur echt.",
+  "Warm bleiben. Langsam werden. Du schaffst das.",
+  "Wenn du müde bist: Pause ist Stärke.",
+  "Du bist genug — auch ohne Leistung.",
+  "Prenses, du bist sogar im Chaos schön."
+];
+
+let qi = 0;
+$("#qTotal").textContent = String(QUOTES.length);
+
+function renderQ(i){
+  qi = (i + QUOTES.length) % QUOTES.length;
+  $("#quoteText").textContent = QUOTES[qi];
+  $("#qIndex").textContent = String(qi+1);
+}
+renderQ(0);
+
+$("#newQ").addEventListener("click", ()=>{ renderQ(qi+1); tick(520,45); });
+$("#nextQ").addEventListener("click", ()=>{ renderQ(qi+1); tick(520,45); });
+$("#prevQ").addEventListener("click", ()=>{ renderQ(qi-1); tick(520,45); });
+
+let sx=0, sy=0;
+const quoteCard = $("#quoteCard");
+quoteCard.addEventListener("pointerdown", (e)=>{ sx=e.clientX; sy=e.clientY; });
+quoteCard.addEventListener("pointerup", (e)=>{
+  const dx = e.clientX - sx;
+  const dy = e.clientY - sy;
+  if(Math.abs(dx) > 45 && Math.abs(dy) < 80){
+    renderQ(qi + (dx < 0 ? 1 : -1));
+    tick(520,45);
+  }
 });
 
-// start on Home
-navigate("home");
+// ---------- Surprise gift ----------
+const gift = $("#gift");
+$("#openGift").addEventListener("click", ()=>{
+  if(cozyPoints < unlockTarget) return;
+  gift.classList.add("open");
+  $("#giftText").textContent =
+    "Für dich, Prenses: Egal wie du dich fühlst — ich bin da. Heute ruhig. Morgen auch. 👑🧸";
+  showToast("🎁 geöffnet");
+  tick(880,90);
+  setPoints(0);
+});
+
+// start
+go("home");
