@@ -1,79 +1,119 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Für dich ❤️</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            text-align: center;
-            color: white;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Für Prenses 👑💖</title>
+  <style>
+    :root{
+      --bg1:#ff8fb1;
+      --bg2:#ffd6c7;
+      --card: rgba(255,255,255,.16);
+      --card2: rgba(255,255,255,.10);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,.86);
+      --shadow: 0 18px 60px rgba(0,0,0,.18);
+      --stroke: rgba(255,255,255,.22);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      overflow:hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,.25), transparent 55%),
+                  radial-gradient(900px 600px at 80% 30%, rgba(255,255,255,.18), transparent 55%),
+                  linear-gradient(135deg,var(--bg1),var(--bg2));
+    }
 
-        h1 {
-            margin-top: 100px;
-            font-size: 3em;
-            animation: glow 2s infinite alternate;
-        }
+    /* floating background hearts */
+    .bg-heart{
+      position:absolute;
+      left:var(--x);
+      top:110vh;
+      font-size: var(--s);
+      opacity:.55;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
+      animation: rise var(--d) linear infinite;
+      transform: translateZ(0);
+      pointer-events:none;
+    }
+    @keyframes rise{
+      0%{ transform: translateY(0) rotate(0deg); opacity:0; }
+      10%{opacity:.55}
+      100%{ transform: translateY(-130vh) rotate(14deg); opacity:0;}
+    }
 
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px white;
-            }
+    .wrap{
+      position:relative;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:20px;
+    }
 
-            to {
-                text-shadow: 0 0 30px red;
-            }
-        }
+    .card{
+      width:min(720px, 92vw);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--stroke);
+      border-radius:26px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding:26px 22px;
+      text-align:center;
+      position:relative;
+    }
 
-        .heart {
-            position: absolute;
-            color: red;
-            font-size: 30px;
-            animation: float 5s linear infinite;
-        }
+    .crown{
+      position:absolute;
+      top:-18px;
+      left:50%;
+      transform:translateX(-50%);
+      background: rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.25);
+      padding:8px 14px;
+      border-radius:999px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+      animation: bob 2.2s ease-in-out infinite;
+    }
+    @keyframes bob{
+      0%,100%{ transform:translateX(-50%) translateY(0); }
+      50%{ transform:translateX(-50%) translateY(-6px); }
+    }
 
-        @keyframes float {
-            0% {
-                transform: translateY(100vh);
-                opacity: 1;
-            }
+    h1{
+      margin:18px 0 10px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height:1.05;
+      letter-spacing:.2px;
+      text-shadow: 0 10px 30px rgba(0,0,0,.22);
+    }
 
-            100% {
-                transform: translateY(-10vh);
-                opacity: 0;
-            }
-        }
+    .sub{
+      margin:0 auto 18px;
+      max-width: 52ch;
+      font-size: clamp(16px, 2.6vw, 18px);
+      color: var(--muted);
+      line-height:1.45;
+    }
 
-        img {
-            width: 200px;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
+    .row{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
 
-    <h1>Gute Besserung mein Schatz ❤️</h1>
-    <p>Auch wenn du krank bist, bist du die süßeste Person auf dieser Welt 🧸🌸</p>
-
-    <img src="https://i.imgur.com/4AiXzf8.jpeg" alt="Teddy">
-
-    <script>
-function createHeart() {
-  const heart = document.createElement("div");
-  heart.className = "heart";
-  heart.innerHTML = "❤️";
-  heart.style.left = Math.random() * 100 + "vw";
-  heart.style.fontSize = (20 + Math.random() * 30) + "px";
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 5000);
-}
-
-setInterval(createHeart, 300);
-    </script>
-
-</body>
-</html>
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.16);
+      color:white;
+      padding:12px 16px;
+      border-radius:16px;
+      font-weight:700;
+      cursor:pointer;
+      box
