@@ -4,16 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Für Prenses 👑💖</title>
+
   <style>
     :root{
-      --bg1:#ff8fb1;
-      --bg2:#ffd6c7;
-      --card: rgba(255,255,255,.16);
+      --bg1:#ff86b6;
+      --bg2:#ffd7c7;
+      --card: rgba(255,255,255,.18);
       --card2: rgba(255,255,255,.10);
-      --text: #ffffff;
-      --muted: rgba(255,255,255,.86);
+      --text:#fff;
+      --muted: rgba(255,255,255,.90);
+      --stroke: rgba(255,255,255,.26);
       --shadow: 0 18px 60px rgba(0,0,0,.18);
-      --stroke: rgba(255,255,255,.22);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -22,13 +23,14 @@
       overflow:hidden;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--text);
-      background: radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,.25), transparent 55%),
-                  radial-gradient(900px 600px at 80% 30%, rgba(255,255,255,.18), transparent 55%),
-                  linear-gradient(135deg,var(--bg1),var(--bg2));
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,.25), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(255,255,255,.18), transparent 55%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
     }
 
-    /* floating background hearts */
-    .bg-heart{
+    /* Background floaters */
+    .bg{
       position:absolute;
       left:var(--x);
       top:110vh;
@@ -36,8 +38,8 @@
       opacity:.55;
       filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
       animation: rise var(--d) linear infinite;
-      transform: translateZ(0);
       pointer-events:none;
+      transform: translateZ(0);
     }
     @keyframes rise{
       0%{ transform: translateY(0) rotate(0deg); opacity:0; }
@@ -51,10 +53,11 @@
       display:grid;
       place-items:center;
       padding:20px;
+      z-index:2;
     }
 
     .card{
-      width:min(720px, 92vw);
+      width:min(820px, 92vw);
       background: linear-gradient(180deg, var(--card), var(--card2));
       border:1px solid var(--stroke);
       border-radius:26px;
@@ -63,6 +66,18 @@
       padding:26px 22px;
       text-align:center;
       position:relative;
+    }
+
+    .spark{
+      position:absolute;
+      inset:0;
+      border-radius:26px;
+      pointer-events:none;
+      background:
+        radial-gradient(220px 120px at 15% 5%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(180px 110px at 85% 10%, rgba(255,255,255,.12), transparent 60%),
+        radial-gradient(220px 140px at 50% 95%, rgba(255,255,255,.10), transparent 62%);
+      mix-blend-mode: screen;
     }
 
     .crown{
@@ -76,6 +91,7 @@
       border-radius:999px;
       box-shadow: 0 12px 30px rgba(0,0,0,.18);
       animation: bob 2.2s ease-in-out infinite;
+      font-weight:800;
     }
     @keyframes bob{
       0%,100%{ transform:translateX(-50%) translateY(0); }
@@ -84,65 +100,102 @@
 
     h1{
       margin:18px 0 10px;
-      font-size: clamp(28px, 5vw, 44px);
+      font-size: clamp(28px, 5vw, 46px);
       line-height:1.05;
-      letter-spacing:.2px;
       text-shadow: 0 10px 30px rgba(0,0,0,.22);
     }
-
     .sub{
-      margin:0 auto 18px;
-      max-width: 52ch;
+      margin:0 auto 14px;
+      max-width: 58ch;
       font-size: clamp(16px, 2.6vw, 18px);
       color: var(--muted);
       line-height:1.45;
     }
 
+    /* Teddy sticker */
+    .teddy{
+      width: 210px;
+      height: 210px;
+      margin: 12px auto 10px;
+      border-radius: 30px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      display:grid;
+      place-items:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,.18);
+      filter: drop-shadow(0 18px 28px rgba(0,0,0,.18));
+      animation: floatBear 2.8s ease-in-out infinite;
+      user-select:none;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      overflow:hidden;
+    }
+    @keyframes floatBear{
+      0%,100%{ transform: translateY(0) rotate(-.6deg); }
+      50%{ transform: translateY(-10px) rotate(.6deg); }
+    }
+    .teddy img{
+      width: 170px;
+      height: 170px;
+      object-fit: contain;
+      image-rendering: auto;
+      pointer-events:none;
+    }
+    .teddyFallback{
+      display:none;
+      font-size: 88px;
+      pointer-events:none;
+    }
+
     .row{
       display:flex;
-      gap:14px;
+      gap:12px;
       align-items:center;
       justify-content:center;
       flex-wrap:wrap;
       margin-top:10px;
     }
-
     .btn{
       appearance:none;
       border:1px solid rgba(255,255,255,.28);
       background: rgba(255,255,255,.16);
       color:white;
-      padding:12px 16px;
+      padding:12px 14px;
       border-radius:16px;
-      font-weight:700;
+      font-weight:900;
       cursor:pointer;
       box-shadow: 0 12px 26px rgba(0,0,0,.15);
       transition: transform .12s ease, background .2s ease, border-color .2s ease;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn:active{ transform: scale(.98); }
     .btn:hover{ background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.40); }
+    .btn:active{ transform: scale(.98); }
 
     .hint{
       margin-top:14px;
       font-size: 14px;
-      color: rgba(255,255,255,.85);
-      opacity:.95;
+      color: rgba(255,255,255,.88);
     }
 
-    .teddy{
-      width:min(210px, 58vw);
-      margin: 12px auto 8px;
-      filter: drop-shadow(0 18px 28px rgba(0,0,0,.25));
-      animation: teddy 2.8s ease-in-out infinite;
+    /* Message typing box */
+    .msg{
+      margin: 14px auto 0;
+      width: min(700px, 92%);
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 18px;
+      padding: 12px 14px;
+      text-align:left;
+      box-shadow: 0 14px 34px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
     }
-    @keyframes teddy{
-      0%,100%{ transform: translateY(0) rotate(-1deg); }
-      50%{ transform: translateY(-8px) rotate(1deg); }
-    }
+    .msgTitle{font-weight:900; opacity:.95; margin-bottom:6px}
+    .msgBody{min-height: 44px; line-height:1.45; color: rgba(255,255,255,.92)}
+    .cursor{ display:inline-block; width:10px; animation: blink 1s infinite; }
+    @keyframes blink{50%{opacity:0}}
 
-    /* tap ripple */
+    /* Ripple + particles */
     .ripple{
       position:absolute;
       width:16px;height:16px;
@@ -151,13 +204,12 @@
       transform: translate(-50%,-50%);
       animation: ripple 650ms ease-out forwards;
       pointer-events:none;
+      z-index:20;
     }
     @keyframes ripple{
       0%{opacity:1; transform:translate(-50%,-50%) scale(.7);}
       100%{opacity:0; transform:translate(-50%,-50%) scale(8);}
     }
-
-    /* floating mini particles */
     .p{
       position:absolute;
       transform: translate(-50%,-50%);
@@ -165,13 +217,14 @@
       filter: drop-shadow(0 10px 18px rgba(0,0,0,.15));
       animation: pop 950ms ease-out forwards;
       will-change: transform, opacity;
+      z-index:25;
     }
     @keyframes pop{
       0%{ opacity:1; transform:translate(-50%,-50%) translate(0,0) scale(1); }
       100%{ opacity:0; transform:translate(-50%,-50%) translate(var(--dx), var(--dy)) scale(.9); }
     }
 
-    /* toast */
+    /* Toast */
     .toast{
       position: fixed;
       left:50%;
@@ -188,35 +241,18 @@
       transition: opacity .25s ease, transform .25s ease;
       max-width: 92vw;
       text-align:center;
-      font-weight:600;
+      font-weight:900;
+      z-index:30;
     }
-    .toast.show{
-      opacity:1;
-      transform: translateX(-50%) translateY(-6px);
-    }
+    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
 
-    /* little sparkle corners */
-    .spark{
-      position:absolute;
-      inset:0;
-      border-radius:26px;
-      pointer-events:none;
-      background:
-        radial-gradient(220px 120px at 15% 5%, rgba(255,255,255,.18), transparent 60%),
-        radial-gradient(180px 110px at 85% 10%, rgba(255,255,255,.12), transparent 60%),
-        radial-gradient(220px 140px at 50% 95%, rgba(255,255,255,.10), transparent 62%);
-      mix-blend-mode: screen;
-    }
-
-    /* accessibility */
     @media (prefers-reduced-motion: reduce){
       *{animation:none !important; transition:none !important;}
     }
   </style>
 </head>
-<body>
 
-  <!-- background hearts generated by JS -->
+<body>
   <div class="wrap">
     <div class="card" id="card">
       <div class="spark"></div>
@@ -225,24 +261,36 @@
       <h1>Gute Besserung Prenses 👑💖</h1>
       <p class="sub">Selbst krank strahlst du heller als jeder Stern ✨</p>
 
-      <!-- cute teddy (public domain-ish style image; you can replace with any URL) -->
-      <img class="teddy" alt="Teddy" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Teddy_bear_icon.png">
+      <!-- IMPORTANT: teddy.gif must be uploaded to the repo root -->
+      <div class="teddy" id="teddy" title="Tippe mich 🧸">
+        <img id="teddyImg" src="teddy.gif" alt="Süßer Teddy" />
+        <div class="teddyFallback" id="teddyFallback">🧸</div>
+      </div>
 
       <div class="row">
         <button class="btn" id="btnLove">Drück mich ❤️</button>
         <button class="btn" id="btnFlowers">Blumenregen 🌸</button>
         <button class="btn" id="btnConfetti">Konfetti 🎉</button>
+        <button class="btn" id="btnSmile">Schick mir ein Lächeln 😄</button>
+        <button class="btn" id="btnMusic">Musik an/aus 🎵</button>
       </div>
 
-      <div class="hint">Tipp: Tippe irgendwo auf den Bildschirm — dann passiert Magie ✨📱</div>
+      <div class="msg">
+        <div class="msgTitle">💌 Nachricht an Prenses</div>
+        <div class="msgBody" id="msgBody">
+          Tippe irgendwo oder drück einen Button… <span class="cursor">|</span>
+        </div>
+      </div>
+
+      <div class="hint">Tipp: Tippe irgendwo — Herzen & Magie ✨📱 (und Teddy auch antippen 🧸)</div>
     </div>
   </div>
 
   <div class="toast" id="toast">💌</div>
 
 <script>
-  // ====== Helpers ======
-  const EMOJIS = ["❤️","💖","💗","💘","✨","🌸","🌷","🧸","👑","💐","😍","🥺"];
+  // ===== helpers =====
+  const EMOJIS = ["❤️","💖","💗","💘","✨","🌸","🌷","👑","💐","😍","🥺","⭐️","🧸"];
   const COMPLIMENTS = [
     "Prenses, du bist stärker als du denkst 👑💪",
     "Ich schick dir eine Umarmung per WLAN 🫂📶",
@@ -251,27 +299,20 @@
     "Du fehlst mir. Werd schnell gesund 🧸❤️",
     "Wenn du schläfst, heilt die Welt dich ein bisschen schneller 😴✨"
   ];
+  const LONG_MESSAGES = [
+    "Prenses… ruh dich aus. Ich bin stolz auf dich. Heute ist dein Job nur: gesund werden. 👑💖",
+    "Ich wünschte ich könnte dir Tee bringen und dich zudecken. Bis dahin: Teddy-Umarmung per Klick 🧸❤️",
+    "Du bist mein Lieblingsmensch. Ich will dich lächeln sehen 😄💐"
+  ];
 
   function rand(min,max){ return Math.random()*(max-min)+min; }
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-  // ====== Background hearts ======
-  function spawnBgHeart(){
-    const h = document.createElement("div");
-    h.className = "bg-heart";
-    h.textContent = Math.random() < 0.75 ? "❤️" : "✨";
-    h.style.setProperty("--x", rand(0,100) + "vw");
-    h.style.setProperty("--s", rand(18,44) + "px");
-    h.style.setProperty("--d", rand(6,12) + "s");
-    document.body.appendChild(h);
-    setTimeout(()=>h.remove(), 13000);
-  }
-  setInterval(spawnBgHeart, 550);
-  for(let i=0;i<10;i++) setTimeout(spawnBgHeart, i*220);
-
-  // ====== Tap magic (click anywhere) ======
-  const card = document.getElementById("card");
   const toast = document.getElementById("toast");
+  const msgBody = document.getElementById("msgBody");
+  const teddyImg = document.getElementById("teddyImg");
+  const teddyFallback = document.getElementById("teddyFallback");
+  const teddy = document.getElementById("teddy");
 
   function showToast(text){
     toast.textContent = text;
@@ -280,6 +321,28 @@
     showToast._t = setTimeout(()=>toast.classList.remove("show"), 1800);
   }
 
+  // If teddy.gif missing, show fallback emoji
+  teddyImg.addEventListener("error", () => {
+    teddyImg.style.display = "none";
+    teddyFallback.style.display = "block";
+    showToast("Teddy fehlt noch 🧸➡️ Lade teddy.gif ins Repo hoch");
+  });
+
+  // ===== background floaters =====
+  function spawnBg(){
+    const el = document.createElement("div");
+    el.className = "bg";
+    el.textContent = Math.random() < 0.65 ? "❤️" : (Math.random()<0.5 ? "✨" : "🌸");
+    el.style.setProperty("--x", rand(0,100) + "vw");
+    el.style.setProperty("--s", rand(16,44) + "px");
+    el.style.setProperty("--d", rand(6,12) + "s");
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 13000);
+  }
+  setInterval(spawnBg, 520);
+  for(let i=0;i<10;i++) setTimeout(spawnBg, i*180);
+
+  // ===== effects =====
   function ripple(x,y){
     const r = document.createElement("div");
     r.className = "ripple";
@@ -297,8 +360,8 @@
       p.style.left = x + "px";
       p.style.top = y + "px";
       p.style.fontSize = rand(16,36) + "px";
-      p.style.setProperty("--dx", rand(-140,140) + "px");
-      p.style.setProperty("--dy", rand(-160,60) + "px");
+      p.style.setProperty("--dx", rand(-150,150) + "px");
+      p.style.setProperty("--dy", rand(-170,90) + "px");
       document.body.appendChild(p);
       setTimeout(()=>p.remove(), 1000);
     }
@@ -313,7 +376,6 @@
       f.style.left = rand(0,w) + "px";
       f.style.top = "-10px";
       f.style.fontSize = rand(18,34) + "px";
-      // make it fall: reuse pop animation but with downward dy
       f.style.setProperty("--dx", rand(-40,40) + "px");
       f.style.setProperty("--dy", rand(520,780) + "px");
       f.style.animationDuration = rand(1200,1900) + "ms";
@@ -322,36 +384,120 @@
     }
   }
 
-  // Click / touch anywhere
+  // ===== typing message =====
+  function escapeHtml(s){
+    return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function typeMessage(text){
+    clearInterval(typeMessage._i);
+    msgBody.innerHTML = '<span class="cursor">|</span>';
+    let i = 0;
+    typeMessage._i = setInterval(()=>{
+      i++;
+      const shown = text.slice(0,i);
+      msgBody.innerHTML = escapeHtml(shown) + ' <span class="cursor">|</span>';
+      if(i >= text.length){
+        clearInterval(typeMessage._i);
+        msgBody.innerHTML = escapeHtml(text);
+      }
+    }, 22);
+  }
+
+  // ===== music (no external files) =====
+  let audioCtx = null;
+  let musicOn = false;
+  let musicTimer = null;
+
+  function ensureAudio(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+  }
+
+  function playTone(freq, durMs){
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq;
+    g.gain.value = 0.0001;
+
+    o.connect(g);
+    g.connect(audioCtx.destination);
+
+    const t0 = audioCtx.currentTime;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.12, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + durMs/1000);
+
+    o.start(t0);
+    o.stop(t0 + durMs/1000 + 0.02);
+  }
+
+  function startMusic(){
+    ensureAudio();
+    if(musicOn) return;
+    musicOn = true;
+    showToast("Musik läuft 🎵");
+    const melody = [[659,180],[784,180],[880,240],[784,180],[659,180],[587,220],[659,240],[784,260]];
+    let idx = 0;
+    musicTimer = setInterval(()=>{
+      if(!musicOn) return;
+      const [f,d] = melody[idx];
+      playTone(f,d);
+      idx = (idx+1) % melody.length;
+    }, 230);
+  }
+  function stopMusic(){
+    musicOn = false;
+    clearInterval(musicTimer);
+    musicTimer = null;
+    showToast("Musik aus 💤");
+  }
+
+  // Tap anywhere
   window.addEventListener("pointerdown", (e)=>{
     ripple(e.clientX, e.clientY);
-    burst(e.clientX, e.clientY, 14, ["💖","❤️","✨","🌸"]);
+    burst(e.clientX, e.clientY, 14, ["💖","❤️","✨","🌸","⭐️"]);
     showToast(pick(COMPLIMENTS));
   }, {passive:true});
+
+  // Teddy click: special hug burst
+  teddy.addEventListener("click", (e)=>{
+    const r = teddy.getBoundingClientRect();
+    burst(r.left+r.width/2, r.top+r.height/2, 30, ["🧸","💖","❤️","✨","🥺"]);
+    typeMessage("Teddy-Umarmung für dich, Prenses 🧸💖 Ruh dich aus und werd schnell gesund…");
+    showToast("🧸 *Umarmung geschickt*");
+  });
 
   // Buttons
   document.getElementById("btnLove").addEventListener("click", (e)=>{
     const r = e.target.getBoundingClientRect();
-    const x = r.left + r.width/2;
-    const y = r.top + r.height/2;
-    burst(x,y,26,["❤️","💖","💘","💗","😍","🥺"]);
-    showToast("Für dich, Prenses 💌❤️");
+    burst(r.left+r.width/2, r.top+r.height/2, 26, ["❤️","💖","💘","💗","😍","🥺"]);
+    typeMessage("Für dich, Prenses 💌❤️ Ruh dich aus… ich denk an dich.");
   });
 
   document.getElementById("btnFlowers").addEventListener("click", ()=>{
-    fall(34, "🌸");
-    fall(18, "💐");
-    showToast("Blumenregen nur für dich 🌸💐");
+    fall(34, "🌸"); fall(18, "💐");
+    typeMessage("Blumenregen nur für dich 🌸💐 Stell dir vor ich leg dir die Blumen ans Bett.");
+    showToast("🌸 Blumenregen!");
   });
 
   document.getElementById("btnConfetti").addEventListener("click", ()=>{
     burst(window.innerWidth*0.5, window.innerHeight*0.35, 34, ["🎉","✨","👑","💖","❤️"]);
     fall(26, "🎉");
-    showToast("Konfetti für die Prenses 🎉👑");
+    typeMessage("Konfetti für die Prenses 🎉👑 Sobald du gesund bist, feiern wir doppelt.");
+    showToast("🎉 Party!");
+  });
+
+  document.getElementById("btnSmile").addEventListener("click", ()=>{
+    burst(window.innerWidth*0.5, window.innerHeight*0.42, 28, ["😄","✨","💖","❤️","🧸"]);
+    typeMessage(pick(LONG_MESSAGES));
+    showToast("😄 Lächeln gesendet");
+  });
+
+  document.getElementById("btnMusic").addEventListener("click", ()=>{
+    ensureAudio(); // must be user gesture anyway
+    if(!musicOn) startMusic(); else stopMusic();
   });
 </script>
-
 </body>
 </html>
-
-
