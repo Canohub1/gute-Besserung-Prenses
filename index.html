@@ -2,169 +2,232 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prenses • Cozy Mode</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prenses • Cozy Arcade</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
   <div class="bg">
-    <div class="grain"></div>
     <div class="blob b1"></div>
     <div class="blob b2"></div>
     <div class="blob b3"></div>
+    <div class="grain"></div>
   </div>
 
-  <main class="app" role="application" aria-label="Cozy App für Prenses">
-    <header class="topbar">
+  <main class="app" id="app">
+    <header class="top">
       <div class="brand">
-        <div class="dot"></div>
-        <div>
-          <div class="title">Gute Besserung, <span class="prenses">Prenses</span></div>
-          <div class="subtitle">Cozy Mode • ruhig, warm, sanft</div>
+        <div class="logo">👑</div>
+        <div class="brandText">
+          <div class="brandTitle">Prenses</div>
+          <div class="brandSub">Cozy Arcade • ruhig • modern • schön</div>
         </div>
       </div>
 
-      <button class="chip" id="btnCozy" aria-pressed="true" title="Cozy Mode an/aus">
-        🌙 Cozy
-      </button>
+      <div class="topActions">
+        <button class="iconBtn" id="btnTheme" title="Theme wechseln">✨</button>
+        <button class="iconBtn" id="btnSound" title="Sound an/aus">🔈</button>
+      </div>
     </header>
 
-    <section class="card hero" data-screen="home">
-      <div class="hero-left">
-        <h1>Du musst heute nichts schaffen.</h1>
-        <p class="lead">
-          Ruh dich aus. Trink was Warmes. Atme ruhig.
-          Ich bin da — ohne Stress, ohne Druck.
-        </p>
+    <!-- HOME -->
+    <section class="screen show" data-screen="home">
+      <div class="card hero">
+        <div class="heroLeft">
+          <h1>Gute Besserung, <span class="accent">Prenses</span>.</h1>
+          <p class="lead">
+            Heute zählt nur: ruhig werden. Warm bleiben. Atmen.
+            Ich hab dir eine kleine Cozy-App gebaut, damit du dich ablenken kannst.
+          </p>
 
-        <div class="hero-actions">
-          <button class="btn primary" id="btnHug">Umarmung senden</button>
-          <button class="btn" id="btnNote">Süße Worte</button>
+          <div class="heroBtns">
+            <button class="btn primary" id="btnHug">Umarmung senden</button>
+            <button class="btn" id="btnWords">Schöne Worte</button>
+            <button class="btn" id="btnPlay">Mini-Games</button>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="statTop">Cozy-Punkte</div>
+              <div class="statVal" id="cozyPoints">0</div>
+            </div>
+            <div class="stat">
+              <div class="statTop">Freischaltung</div>
+              <div class="statVal"><span id="unlockPct">0</span>%</div>
+            </div>
+            <div class="stat">
+              <div class="statTop">Mood</div>
+              <div class="statVal" id="mood">Warm</div>
+            </div>
+          </div>
+
+          <div class="hint">
+            Tipp: Tippe irgendwo – es kommt ein sanftes „Glow“-Feedback ✨
+          </div>
         </div>
 
-        <div class="mini-status" id="miniStatus">
-          <span class="pill">✨ Warm</span>
-          <span class="pill">🫖 Tee</span>
-          <span class="pill">😴 Ruhe</span>
+        <div class="heroRight">
+          <button class="teddy" id="teddy" title="Tippe mich 🧸">
+            <img id="teddyImg" src="./assets/teddy.gif" alt="Teddybär" />
+            <div class="teddyFallback" id="teddyFallback">🧸</div>
+            <div class="teddyTag">tap</div>
+          </button>
+
+          <div class="noteCard">
+            <div class="noteIcon">💌</div>
+            <div class="noteText" id="noteText">Tippe den Teddy für eine sanfte Nachricht.</div>
+          </div>
         </div>
       </div>
 
-      <div class="hero-right">
-        <button class="teddy" id="teddy" title="Tippe für eine sanfte Umarmung">
-          <img id="teddyImg" src="assets/teddy.gif" alt="Teddybär" />
-          <div class="teddy-fallback" id="teddyFallback">🧸</div>
-          <div class="teddy-hint">tap</div>
-        </button>
-
-        <div class="soft-message" id="softMessage">
-          <div class="soft-title">💌</div>
-          <div class="soft-text" id="softText">Tippe auf den Teddy…</div>
-        </div>
+      <div class="card quickRow">
+        <button class="chip" data-boost="tea">🫖 Tee</button>
+        <button class="chip" data-boost="rest">😴 Ruhe</button>
+        <button class="chip" data-boost="warm">🧣 Warm</button>
+        <button class="chip" data-boost="smile">🙂 Lächeln</button>
       </div>
     </section>
 
-    <section class="card" data-screen="games" hidden>
-      <div class="section-head">
-        <h2>Games</h2>
-        <p>Ruhige Mini-Spiele – kein Stress, keine Timer.</p>
-      </div>
+    <!-- ARCADE -->
+    <section class="screen" data-screen="arcade">
+      <div class="card">
+        <div class="sectionHead">
+          <div>
+            <h2>Mini-Games</h2>
+            <p>Cozy, ohne Stress. Kleine Dopamin-Snacks, aber ruhig.</p>
+          </div>
+          <div class="pill" id="arcadePill">Zen Mode</div>
+        </div>
 
-      <div class="tabs">
-        <button class="tab active" data-game="bubbles">Bubble Calm</button>
-        <button class="tab" data-game="hearts">Heart Collector</button>
-      </div>
+        <div class="tabs">
+          <button class="tab active" data-tab="bubbles">Zen Bubbles</button>
+          <button class="tab" data-tab="memory">Memory Match</button>
+          <button class="tab" data-tab="trail">Glow Trail</button>
+        </div>
 
-      <div class="game-wrap">
-        <div class="game-panel" id="gameBubbles">
-          <div class="game-top">
+        <!-- BUBBLES -->
+        <div class="panel show" data-panel="bubbles">
+          <div class="panelTop">
             <div>
-              <div class="game-title">Bubble Calm</div>
-              <div class="game-sub">Tippe Blasen an. Sanft. Beruhigend.</div>
+              <div class="panelTitle">Zen Bubbles</div>
+              <div class="panelSub">Tippe Blasen. Langsam. Beruhigend.</div>
             </div>
-            <div class="score">
-              <span>Pop</span>
-              <strong id="bubbleScore">0</strong>
+            <div class="scoreBox">
+              <div class="scoreLabel">Pops</div>
+              <div class="scoreVal" id="bubbleScore">0</div>
             </div>
           </div>
-          <div class="playfield" id="bubbleField" aria-label="Bubble Game"></div>
-          <div class="game-actions">
+          <div class="playfield" id="bubbleField"></div>
+          <div class="panelActions">
             <button class="btn" id="bubbleMore">Mehr Blasen</button>
-            <button class="btn ghost" id="bubbleClear">Reset</button>
+            <button class="btn ghost" id="bubbleReset">Reset</button>
           </div>
         </div>
 
-        <div class="game-panel" id="gameHearts" hidden>
-          <div class="game-top">
+        <!-- MEMORY -->
+        <div class="panel" data-panel="memory">
+          <div class="panelTop">
             <div>
-              <div class="game-title">Heart Collector</div>
-              <div class="game-sub">Sammle Herzen. Ganz langsam.</div>
+              <div class="panelTitle">Memory Match</div>
+              <div class="panelSub">Finde Paare. Cozy-Icons, smooth Flip.</div>
             </div>
-            <div class="score">
-              <span>Hearts</span>
-              <strong id="heartScore">0</strong>
+            <div class="scoreBox">
+              <div class="scoreLabel">Moves</div>
+              <div class="scoreVal" id="moves">0</div>
             </div>
           </div>
-          <div class="playfield" id="heartField" aria-label="Heart Game"></div>
-          <div class="game-actions">
-            <button class="btn" id="heartSpawn">Herzen erscheinen lassen</button>
-            <button class="btn ghost" id="heartClear">Reset</button>
+          <div class="memoryGrid" id="memoryGrid"></div>
+          <div class="panelActions">
+            <button class="btn" id="memoryNew">Neu mischen</button>
+            <button class="btn ghost" id="memoryReset">Reset</button>
           </div>
         </div>
+
+        <!-- TRAIL -->
+        <div class="panel" data-panel="trail">
+          <div class="panelTop">
+            <div>
+              <div class="panelTitle">Glow Trail</div>
+              <div class="panelSub">Zieh mit dem Finger. Beruhigendes Glitzern.</div>
+            </div>
+            <div class="scoreBox">
+              <div class="scoreLabel">Strokes</div>
+              <div class="scoreVal" id="strokes">0</div>
+            </div>
+          </div>
+          <div class="trailPad" id="trailPad">
+            <div class="trailHint">Wischen / Zeichnen ✨</div>
+          </div>
+          <div class="panelActions">
+            <button class="btn" id="trailSoft">Weicher</button>
+            <button class="btn ghost" id="trailClear">Clear</button>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <section class="card" data-screen="words" hidden>
-      <div class="section-head">
-        <h2>Words</h2>
-        <p>Schöne Worte, clean & cozy. Wisch oder tippe weiter.</p>
-      </div>
+    <!-- WORDS -->
+    <section class="screen" data-screen="words">
+      <div class="card">
+        <div class="sectionHead">
+          <div>
+            <h2>Schöne Worte</h2>
+            <p>Clean Cards. Swipe links/rechts oder „Neue Karte“.</p>
+          </div>
+          <div class="pill"><span id="qIndex">1</span>/<span id="qTotal">1</span></div>
+        </div>
 
-      <div class="quote-card" id="quoteCard">
-        <div class="quote-mark">“</div>
-        <div class="quote-text" id="quoteText"></div>
-        <div class="quote-meta">
-          <span id="quoteIndex">1</span>/<span id="quoteTotal">1</span>
+        <div class="quoteCard" id="quoteCard">
+          <div class="quoteGlow"></div>
+          <div class="quoteMark">“</div>
+          <div class="quoteText" id="quoteText"></div>
+        </div>
+
+        <div class="row">
+          <button class="btn ghost" id="prevQ">Zurück</button>
+          <button class="btn primary" id="newQ">Neue Karte</button>
+          <button class="btn ghost" id="nextQ">Weiter</button>
         </div>
       </div>
-
-      <div class="row">
-        <button class="btn ghost" id="prevQuote">Zurück</button>
-        <button class="btn primary" id="newQuote">Neue Karte</button>
-        <button class="btn ghost" id="nextQuote">Weiter</button>
-      </div>
     </section>
 
-    <section class="card" data-screen="calm" hidden>
-      <div class="section-head">
-        <h2>Calm</h2>
-        <p>Ein kurzer Atemrhythmus. 30 Sekunden reichen.</p>
-      </div>
+    <!-- SURPRISE -->
+    <section class="screen" data-screen="surprise">
+      <div class="card">
+        <div class="sectionHead">
+          <div>
+            <h2>Surprise</h2>
+            <p>Ein kleines Geschenk – wird automatisch freigeschaltet.</p>
+          </div>
+          <div class="pill" id="lockPill">🔒 Locked</div>
+        </div>
 
-      <div class="breath">
-        <div class="ring" id="ring"></div>
-        <div class="breath-text">
-          <div class="breath-title" id="breathTitle">Einatmen</div>
-          <div class="breath-sub" id="breathSub">Langsam…</div>
+        <div class="gift" id="gift">
+          <div class="giftBox">
+            <div class="giftTop"></div>
+            <div class="giftBody"></div>
+          </div>
+          <div class="giftText" id="giftText">
+            Sammle Cozy-Punkte (Games spielen / Teddy tippen), dann öffnet es sich.
+          </div>
+          <button class="btn primary" id="openGift" disabled>Geschenk öffnen</button>
         </div>
       </div>
-
-      <div class="row">
-        <button class="btn primary" id="breathStart">Start</button>
-        <button class="btn ghost" id="breathStop">Stop</button>
-      </div>
     </section>
 
+    <!-- NAV -->
     <nav class="nav">
-      <button class="navbtn active" data-go="home">Home</button>
-      <button class="navbtn" data-go="games">Games</button>
-      <button class="navbtn" data-go="words">Words</button>
-      <button class="navbtn" data-go="calm">Calm</button>
+      <button class="navBtn active" data-go="home">Home</button>
+      <button class="navBtn" data-go="arcade">Arcade</button>
+      <button class="navBtn" data-go="words">Words</button>
+      <button class="navBtn" data-go="surprise">Surprise</button>
     </nav>
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast"></div>
 
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
