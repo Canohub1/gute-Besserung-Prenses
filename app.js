@@ -358,17 +358,289 @@ quoteCard.addEventListener("pointerup", (e)=>{
   }
 });
 
-// ---------- Surprise gift ----------
+// ---------- Surprise: real interactive + random each time ----------
 const gift = $("#gift");
+const sModal = $("#sModal");
+const sClose = $("#sClose");
+const sTitle = $("#sTitle");
+const sSub = $("#sSub");
+const sBody = $("#sBody");
+const sActions = $("#sActions");
+
+function openModal(){
+  sModal.classList.add("show");
+  sModal.setAttribute("aria-hidden","false");
+}
+function closeModal(){
+  sModal.classList.remove("show");
+  sModal.setAttribute("aria-hidden","true");
+}
+sClose.addEventListener("click", closeModal);
+sModal.addEventListener("click", (e)=>{ if(e.target === sModal) closeModal(); });
+
+// helper: tiny confetti burst
+function confettiBurst(cx, cy, n=22){
+  for(let i=0;i<n;i++){
+    const d = document.createElement("div");
+    d.className = "confettiDot";
+    d.style.left = cx + "px";
+    d.style.top = cy + "px";
+    d.style.setProperty("--dx", (Math.random()*520 - 260) + "px");
+    d.style.setProperty("--dy", (Math.random()*520 - 260) + "px");
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(), 950);
+  }
+}
+
+// pick surprise, avoid same as last
+const SURPRISES = ["letter", "holdhug", "pickone", "scratch"];
+function pickSurprise(){
+  const last = localStorage.getItem("lastSurprise") || "";
+  let pool = SURPRISES.filter(x => x !== last);
+  if(pool.length === 0) pool = SURPRISES.slice();
+  const chosen = pool[Math.floor(Math.random()*pool.length)];
+  localStorage.setItem("lastSurprise", chosen);
+  return chosen;
+}
+
+function renderSurprise(type){
+  sActions.innerHTML = "";
+  sBody.innerHTML = "";
+
+  if(type === "letter"){
+    sTitle.textContent = "Ein Brief, ganz leise 💌";
+    sSub.textContent = "Tippe auf „Weiter“, um Zeile für Zeile zu öffnen.";
+
+    const lines = [
+      "Prenses…",
+      "heute musst du nichts stark sein.",
+      "Ruh dich aus, ich bin da – leise, warm, echt.",
+      "Und wenn du lächelst, ist das schon ein Sieg."
+    ];
+    let i = 0;
+
+    const box = document.createElement("div");
+    box.className = "revealBox";
+    box.innerHTML = `<div id="letterLine" style="font-weight:900; line-height:1.6;"></div>`;
+    sBody.appendChild(box);
+
+    const btn = document.createElement("button");
+    btn.className = "softBtn";
+    btn.textContent = "Weiter";
+    btn.onclick = ()=>{
+      $("#letterLine").textContent = lines[i];
+      tick(520,45);
+      i++;
+      if(i >= lines.length){
+        btn.textContent = "Fertig ✨";
+        btn.onclick = ()=>{
+          const r = sBody.getBoundingClientRect();
+          confettiBurst(r.left + r.width/2, r.top + 40, 26);
+          showToast("💖");
+          closeModal();
+        };
+      }
+    };
+    sActions.appendChild(btn);
+
+    // show first automatically
+    btn.click();
+    return;
+  }
+
+  if(type === "holdhug"){
+    sTitle.textContent = "Hold-to-Hug 🧸";
+    sSub.textContent = "Halte gedrückt, bis die Umarmung voll ist.";
+
+    const wrap = document.createElement("div");
+    wrap.className = "bigCenter";
+    wrap.innerHTML = `
+      <div class="bigEmoji">🧸</div>
+      <div class="progressBar"><div class="progressFill" id="hugFill"></div></div>
+      <div style="color:var(--muted);font-weight:800">Hold…</div>
+    `;
+    sBody.appendChild(wrap);
+
+    const btn = document.createElement("button");
+    btn.className = "softBtn";
+    btn.textContent = "Gedrückt halten";
+    sActions.appendChild(btn);
+
+    let p = 0, tmr = null;
+    const fill = ()=> $("#hugFill");
+
+    const start = ()=>{
+      if(tmr) return;
+      tick(420,40);
+      tmr = setInterval(()=>{
+        p = Math.min(100, p + 3);
+        fill().style.width = p + "%";
+        if(p >= 100){
+          clearInterval(tmr); tmr = null;
+          const r = sBody.getBoundingClientRect();
+          confettiBurst(r.left + r.width/2, r.top + r.height/2, 30);
+          sSub.textContent = "Umarmung delivered. Ruh dich aus, Prenses. 🤍";
+          showToast("🧸💖");
+          setPoints(5);
+          btn.textContent = "Schließen";
+          btn.onpointerdown = null;
+          btn.onpointerup = null;
+          btn.onclick = closeModal;
+        }
+      }, 40);
+    };
+    const stop = ()=>{
+      if(!tmr) return;
+      clearInterval(tmr); tmr = null;
+      // gentle decay
+      const decay = setInterval(()=>{
+        p = Math.max(0, p - 2);
+        fill().style.width = p + "%";
+        if(p === 0) clearInterval(decay);
+      }, 30);
+    };
+
+    btn.onpointerdown = start;
+    btn.onpointerup = stop;
+    btn.onpointercancel = stop;
+
+    return;
+  }
+
+  if(type === "pickone"){
+    sTitle.textContent = "Wähle 1 Karte ✨";
+    sSub.textContent = "Eine davon ist „extra sweet“ – fühl einfach.";
+
+    const options = shuffle([
+      {e:"🌙", t:"Heute ist Cozy-Night. Du bist sicher."},
+      {e:"🫖", t:"Tee & Ruhe. Ich pass auf dich auf."},
+      {e:"💖", t:"Du bist mein Lieblingsmensch. Punkt."}
+    ]);
+
+    const grid = document.createElement("div");
+    grid.className = "cardFlip";
+    options.forEach((o, idx)=>{
+      const tile = document.createElement("div");
+      tile.className = "miniTile";
+      tile.textContent = "✦";
+      tile.onclick = ()=>{
+        // reveal selected
+        grid.querySelectorAll(".miniTile").forEach(t=>t.onclick=null);
+        tile.textContent = o.e;
+        const msg = document.createElement("div");
+        msg.style.marginTop = "10px";
+        msg.style.fontWeight = "900";
+        msg.style.lineHeight = "1.5";
+        msg.textContent = o.t;
+        sBody.appendChild(msg);
+
+        tick(560,55);
+        setPoints(3);
+
+        const r = tile.getBoundingClientRect();
+        confettiBurst(r.left + r.width/2, r.top + r.height/2, 18);
+
+        const closeBtn = document.createElement("button");
+        closeBtn.className = "softBtn";
+        closeBtn.textContent = "Schließen";
+        closeBtn.onclick = closeModal;
+        sActions.innerHTML = "";
+        sActions.appendChild(closeBtn);
+      };
+      grid.appendChild(tile);
+    });
+
+    sBody.appendChild(grid);
+    return;
+  }
+
+  if(type === "scratch"){
+    sTitle.textContent = "Rubbel-Reveal ✨";
+    sSub.textContent = "Tippe 8x – dann wird die Message freigerubbelt.";
+
+    let taps = 0;
+    const target = 8;
+
+    const box = document.createElement("div");
+    box.className = "revealBox";
+    box.innerHTML = `
+      <div class="bigCenter">
+        <div class="bigEmoji">🪄</div>
+        <div class="progressBar"><div class="progressFill" id="scrFill"></div></div>
+        <div style="color:var(--muted);font-weight:850">Tap… (${taps}/${target})</div>
+      </div>
+    `;
+    sBody.appendChild(box);
+
+    const update = ()=>{
+      $("#scrFill").style.width = Math.round((taps/target)*100) + "%";
+      box.querySelector(".bigCenter div:nth-child(3)").textContent = `Tap… (${taps}/${target})`;
+    };
+
+    const tap = ()=>{
+      taps++;
+      tick(680,40);
+      update();
+      if(taps >= target){
+        const msg = document.createElement("div");
+        msg.style.marginTop = "10px";
+        msg.style.fontWeight = "900";
+        msg.style.lineHeight = "1.6";
+        msg.textContent = "Prenses… du bist wunderschön, auch wenn du gerade nur ruhst. 🤍";
+        sBody.appendChild(msg);
+
+        const r = sBody.getBoundingClientRect();
+        confettiBurst(r.left + r.width/2, r.top + 50, 26);
+        setPoints(4);
+
+        sActions.innerHTML = "";
+        const b = document.createElement("button");
+        b.className = "softBtn";
+        b.textContent = "Schließen";
+        b.onclick = closeModal;
+        sActions.appendChild(b);
+
+        box.onclick = null;
+      }
+    };
+
+    box.onclick = tap;
+
+    // start button
+    const b = document.createElement("button");
+    b.className = "softBtn";
+    b.textContent = "Los geht’s";
+    b.onclick = ()=>{ showToast("✨"); };
+    sActions.appendChild(b);
+
+    return;
+  }
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
 $("#openGift").addEventListener("click", ()=>{
   if(cozyPoints < unlockTarget) return;
+
+  // open + random surprise
   gift.classList.add("open");
-  $("#giftText").textContent =
-    "Für dich, Prenses: Egal wie du dich fühlst — ich bin da. Heute ruhig. Morgen auch. 👑🧸";
-  showToast("🎁 geöffnet");
+  $("#giftText").textContent = "Okay… ich öffne es. 👑";
+  showToast("🎁 Surprise!");
   tick(880,90);
-  setPoints(0);
+
+  const t = pickSurprise();
+  renderSurprise(t);
+  openModal();
 });
+
 
 // start
 go("home");
+
