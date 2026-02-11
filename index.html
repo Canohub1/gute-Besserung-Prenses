@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Für dich ❤️</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            margin-top: 100px;
+            font-size: 3em;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px white;
+            }
+
+            to {
+                text-shadow: 0 0 30px red;
+            }
+        }
+
+        .heart {
+            position: absolute;
+            color: red;
+            font-size: 30px;
+            animation: float 5s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh);
+                opacity: 0;
+            }
+        }
+
+        img {
+            width: 200px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gute Besserung mein Schatz ❤️</h1>
+    <p>Auch wenn du krank bist, bist du die süßeste Person auf dieser Welt 🧸🌸</p>
+
+    <img src="https://i.imgur.com/4AiXzf8.jpeg" alt="Teddy">
+
+    <script>
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = "❤️";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = (20 + Math.random() * 30) + "px";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 5000);
+}
+
+setInterval(createHeart, 300);
+    </script>
+
+</body>
+</html>
