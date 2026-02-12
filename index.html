@@ -53,7 +53,7 @@
               <div class="statVal" id="cozyPoints">0</div>
             </div>
             <div class="stat">
-              <div class="statTop">Freischaltung</div>
+              <div class="statTop">Surprise</div>
               <div class="statVal"><span id="unlockPct">0</span>%</div>
             </div>
             <div class="stat">
@@ -63,7 +63,7 @@
           </div>
 
           <div class="hint">
-            Tipp: Tippe irgendwo – es kommt ein sanftes „Glow“-Feedback ✨
+            Tipp: Tippe irgendwo – es gibt ein sanftes Glow-Feedback ✨
           </div>
         </div>
 
@@ -91,101 +91,38 @@
 
     <!-- ARCADE -->
     <section class="screen" data-screen="arcade">
-  <div class="card">
-    <div class="sectionHead">
-      <div>
-        <h2>Mini-Games</h2>
-        <p>Cozy Arcade • keine Hektik • kleine Dopamin-Snacks</p>
-      </div>
-      <div class="pill">Combo <span id="comboX">x1</span> • Score <span id="arcadeScore">0</span></div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="pattern">1) Pattern Flow</button>
-      <button class="tab" data-tab="builder">2) Cozy Builder</button>
-      <button class="tab" data-tab="crown">3) Find the Crown</button>
-      <button class="tab" data-tab="reaction">4) Cozy Reaction</button>
-      <button class="tab" data-tab="merge">5) Tile Merge</button>
-      <button class="tab" data-tab="catcher">6) Mood Catcher</button>
-      <button class="tab" data-tab="story">7) Mini Story</button>
-      <button class="tab" data-tab="connect">8) Zen Connect</button>
-      <button class="tab" data-tab="daily">9) Daily Challenge</button>
-      <button class="tab" data-tab="stickers">10) Sticker Book</button>
-    </div>
-
-    <div class="panel show" data-panel="pattern"><div class="gameArea" id="gPattern"></div></div>
-    <div class="panel" data-panel="builder"><div class="gameArea" id="gBuilder"></div></div>
-    <div class="panel" data-panel="crown"><div class="gameArea" id="gCrown"></div></div>
-    <div class="panel" data-panel="reaction"><div class="gameArea" id="gReaction"></div></div>
-    <div class="panel" data-panel="merge"><div class="gameArea" id="gMerge"></div></div>
-    <div class="panel" data-panel="catcher"><div class="gameArea" id="gCatcher"></div></div>
-    <div class="panel" data-panel="story"><div class="gameArea" id="gStory"></div></div>
-    <div class="panel" data-panel="connect"><div class="gameArea" id="gConnect"></div></div>
-    <div class="panel" data-panel="daily"><div class="gameArea" id="gDaily"></div></div>
-    <div class="panel" data-panel="stickers"><div class="gameArea" id="gStickers"></div></div>
-  </div>
-</section>
-
-
-        <!-- BUBBLES -->
-        <div class="panel show" data-panel="bubbles">
-          <div class="panelTop">
-            <div>
-              <div class="panelTitle">Zen Bubbles</div>
-              <div class="panelSub">Tippe Blasen. Langsam. Beruhigend.</div>
-            </div>
-            <div class="scoreBox">
-              <div class="scoreLabel">Pops</div>
-              <div class="scoreVal" id="bubbleScore">0</div>
-            </div>
+      <div class="card">
+        <div class="sectionHead">
+          <div>
+            <h2>Mini-Games</h2>
+            <p>Alle 1–10 drin. Cozy. Kein Stress. Schönes Feedback.</p>
           </div>
-          <div class="playfield" id="bubbleField"></div>
-          <div class="panelActions">
-            <button class="btn" id="bubbleMore">Mehr Blasen</button>
-            <button class="btn ghost" id="bubbleReset">Reset</button>
-          </div>
+          <div class="pill">Combo <span id="comboX">x1</span> • Score <span id="arcadeScore">0</span></div>
         </div>
 
-        <!-- MEMORY -->
-        <div class="panel" data-panel="memory">
-          <div class="panelTop">
-            <div>
-              <div class="panelTitle">Memory Match</div>
-              <div class="panelSub">Finde Paare. Cozy-Icons, smooth Flip.</div>
-            </div>
-            <div class="scoreBox">
-              <div class="scoreLabel">Moves</div>
-              <div class="scoreVal" id="moves">0</div>
-            </div>
-          </div>
-          <div class="memoryGrid" id="memoryGrid"></div>
-          <div class="panelActions">
-            <button class="btn" id="memoryNew">Neu mischen</button>
-            <button class="btn ghost" id="memoryReset">Reset</button>
-          </div>
+        <div class="tabs">
+          <button class="tab active" data-tab="pattern">1) Pattern Flow</button>
+          <button class="tab" data-tab="builder">2) Cozy Builder</button>
+          <button class="tab" data-tab="crown">3) Find the Crown</button>
+          <button class="tab" data-tab="reaction">4) Cozy Reaction</button>
+          <button class="tab" data-tab="merge">5) Tile Merge</button>
+          <button class="tab" data-tab="catcher">6) Mood Catcher</button>
+          <button class="tab" data-tab="story">7) Mini Story</button>
+          <button class="tab" data-tab="connect">8) Zen Connect</button>
+          <button class="tab" data-tab="daily">9) Daily Challenge</button>
+          <button class="tab" data-tab="stickers">10) Sticker Book</button>
         </div>
 
-        <!-- TRAIL -->
-        <div class="panel" data-panel="trail">
-          <div class="panelTop">
-            <div>
-              <div class="panelTitle">Glow Trail</div>
-              <div class="panelSub">Zieh mit dem Finger. Beruhigendes Glitzern.</div>
-            </div>
-            <div class="scoreBox">
-              <div class="scoreLabel">Strokes</div>
-              <div class="scoreVal" id="strokes">0</div>
-            </div>
-          </div>
-          <div class="trailPad" id="trailPad">
-            <div class="trailHint">Wischen / Zeichnen ✨</div>
-          </div>
-          <div class="panelActions">
-            <button class="btn" id="trailSoft">Weicher</button>
-            <button class="btn ghost" id="trailClear">Clear</button>
-          </div>
-        </div>
-
+        <div class="panel show" data-panel="pattern"><div class="gameArea" id="gPattern"></div></div>
+        <div class="panel" data-panel="builder"><div class="gameArea" id="gBuilder"></div></div>
+        <div class="panel" data-panel="crown"><div class="gameArea" id="gCrown"></div></div>
+        <div class="panel" data-panel="reaction"><div class="gameArea" id="gReaction"></div></div>
+        <div class="panel" data-panel="merge"><div class="gameArea" id="gMerge"></div></div>
+        <div class="panel" data-panel="catcher"><div class="gameArea" id="gCatcher"></div></div>
+        <div class="panel" data-panel="story"><div class="gameArea" id="gStory"></div></div>
+        <div class="panel" data-panel="connect"><div class="gameArea" id="gConnect"></div></div>
+        <div class="panel" data-panel="daily"><div class="gameArea" id="gDaily"></div></div>
+        <div class="panel" data-panel="stickers"><div class="gameArea" id="gStickers"></div></div>
       </div>
     </section>
 
@@ -195,7 +132,7 @@
         <div class="sectionHead">
           <div>
             <h2>Schöne Worte</h2>
-            <p>Clean Cards. Swipe links/rechts oder „Neue Karte“.</p>
+            <p>Wisch links/rechts oder tippe „Neue Karte“.</p>
           </div>
           <div class="pill"><span id="qIndex">1</span>/<span id="qTotal">1</span></div>
         </div>
@@ -220,7 +157,7 @@
         <div class="sectionHead">
           <div>
             <h2>Surprise</h2>
-            <p>Ein kleines Geschenk – wird automatisch freigeschaltet.</p>
+            <p>Wird freigeschaltet durch Cozy-Punkte – dann jedes Mal anders.</p>
           </div>
           <div class="pill" id="lockPill">🔒 Locked</div>
         </div>
@@ -230,9 +167,11 @@
             <div class="giftTop"></div>
             <div class="giftBody"></div>
           </div>
+
           <div class="giftText" id="giftText">
-            Sammle Cozy-Punkte (Games spielen / Teddy tippen), dann öffnet es sich.
+            Spiel ein bisschen oder tippe den Teddy – dann kannst du es öffnen.
           </div>
+
           <button class="btn primary" id="openGift" disabled>Geschenk öffnen</button>
         </div>
       </div>
@@ -247,27 +186,24 @@
     </nav>
   </main>
 
-  <div class="toast" id="toast"></div>
-  <!-- Surprise Modal -->
-<div class="sModal" id="sModal" aria-hidden="true">
-  <div class="sSheet" role="dialog" aria-label="Surprise">
-    <button class="sClose" id="sClose" aria-label="Close">✕</button>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <div class="sHead">
-      <div class="sBadge">🎁 Surprise</div>
-      <div class="sTitle" id="sTitle">Für Prenses</div>
-      <div class="sSub" id="sSub">Etwas Kleines nur für dich.</div>
+  <!-- Surprise Modal (NUR 1x!) -->
+  <div class="sModal" id="sModal" aria-hidden="true">
+    <div class="sSheet" role="dialog" aria-label="Surprise">
+      <button class="sClose" id="sClose" aria-label="Close">✕</button>
+
+      <div class="sHead">
+        <div class="sBadge">🎁 Surprise</div>
+        <div class="sTitle" id="sTitle">Für Prenses</div>
+        <div class="sSub" id="sSub">Etwas Kleines nur für dich.</div>
+      </div>
+
+      <div class="sBody" id="sBody"></div>
+      <div class="sActions" id="sActions"></div>
     </div>
-
-    <div class="sBody" id="sBody"></div>
-    <div class="sActions" id="sActions"></div>
   </div>
-</div>
 
   <script src="./app.js"></script>
-  
 </body>
 </html>
-
-
-
