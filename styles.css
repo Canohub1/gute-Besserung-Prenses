@@ -723,3 +723,206 @@ body.dark .miniTile{ background: rgba(255,255,255,.06); }
 @keyframes confetti{
   to{ transform: translate(var(--dx), var(--dy)) scale(.6); opacity:0; }
 }
+
+/* ===========================
+   Arcade 10/10 – Game UI
+   =========================== */
+
+.gameArea{
+  margin-top:14px;
+  min-height:320px;
+  border-radius:20px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.22);
+  padding:14px;
+  box-shadow: var(--shadow2);
+  position:relative;
+  overflow:hidden;
+}
+body.dark .gameArea{ background: rgba(255,255,255,.04); }
+
+.gTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.gTitle{ font-weight:980; }
+.gSub{ margin-top:2px; color: var(--muted); font-weight:750; font-size:13px; line-height:1.4; }
+
+.gScore{
+  border-radius:16px;
+  border:1px solid var(--btnStroke);
+  background: rgba(0,0,0,.06);
+  padding:10px 12px;
+  text-align:right;
+  min-width: 100px;
+}
+body.dark .gScore{ background: rgba(255,255,255,.08); }
+.gScore small{ display:block; color: var(--muted); font-weight:850; }
+.gScore strong{ display:block; font-size:18px; font-weight:980; margin-top:2px; }
+
+.gRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+
+.pad{
+  border-radius:18px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.18);
+  height: 240px;
+  position:relative;
+  overflow:hidden;
+}
+body.dark .pad{ background: rgba(255,255,255,.03); }
+
+.grid4{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:10px;
+}
+@media (max-width:560px){ .grid4{ grid-template-columns: repeat(3,1fr); } }
+
+.tileBtn{
+  border-radius:18px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.34);
+  box-shadow: var(--shadow2);
+  aspect-ratio: 1/1;
+  display:grid;
+  place-items:center;
+  font-size:28px;
+  font-weight:980;
+  cursor:pointer;
+  user-select:none;
+  transition: transform 140ms ease;
+}
+body.dark .tileBtn{ background: rgba(255,255,255,.06); }
+.tileBtn:active{ transform: scale(.96); }
+
+.glow{
+  outline: 2px solid rgba(255,255,255,.65);
+  box-shadow: 0 0 0 10px rgba(255,255,255,.10);
+}
+
+.pulseDot{
+  width: 54px; height: 54px;
+  border-radius: 999px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.55);
+  box-shadow: var(--shadow2);
+  position:absolute;
+  left:50%; top:50%;
+  transform: translate(-50%,-50%) scale(0.7);
+  opacity:.3;
+}
+body.dark .pulseDot{ background: rgba(255,255,255,.12); }
+
+.pulseAnim{
+  animation: pulse 1.25s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%{ transform:translate(-50%,-50%) scale(.70); opacity:.25; }
+  50%{ transform:translate(-50%,-50%) scale(1.08); opacity:.92; }
+  100%{ transform:translate(-50%,-50%) scale(.70); opacity:.25; }
+}
+
+.draggable{
+  touch-action:none;
+}
+.dropZone{
+  border-radius:18px;
+  border:1px dashed rgba(0,0,0,.18);
+  background: rgba(255,255,255,.16);
+  height: 96px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 12px;
+  gap:10px;
+}
+body.dark .dropZone{ border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.04); }
+.zoneTitle{ font-weight:900; }
+.zoneSlots{ display:flex; gap:10px; }
+.slot{
+  width:52px; height:52px;
+  border-radius:16px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.28);
+  display:grid;
+  place-items:center;
+  font-size:22px;
+}
+body.dark .slot{ background: rgba(255,255,255,.06); }
+
+.faller{
+  position:absolute;
+  left: var(--x);
+  top: -10%;
+  transform: translate(-50%,-50%);
+  font-size: var(--s);
+  opacity:.88;
+  filter: drop-shadow(0 14px 20px rgba(0,0,0,.10));
+  animation: fall var(--d) linear infinite;
+  user-select:none;
+  cursor:pointer;
+}
+@keyframes fall{
+  from{ top:-10%; }
+  to{ top:110%; }
+}
+
+.connectBoard{
+  height: 280px;
+  border-radius: 18px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.18);
+  position:relative;
+  overflow:hidden;
+  touch-action:none;
+}
+body.dark .connectBoard{ background: rgba(255,255,255,.03); }
+.node{
+  position:absolute;
+  width:44px; height:44px;
+  border-radius: 16px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.34);
+  box-shadow: var(--shadow2);
+  display:grid;
+  place-items:center;
+  font-weight:980;
+  cursor:pointer;
+  user-select:none;
+}
+body.dark .node{ background: rgba(255,255,255,.06); }
+
+.line{
+  position:absolute;
+  height:4px;
+  border-radius:999px;
+  background: rgba(255,255,255,.75);
+  transform-origin: left center;
+  opacity:.9;
+}
+body.dark .line{ background: rgba(255,255,255,.55); }
+
+.stickerGrid{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:10px;
+}
+@media (max-width:560px){ .stickerGrid{ grid-template-columns: repeat(4,1fr); } }
+.sticker{
+  aspect-ratio: 1/1;
+  border-radius: 18px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.30);
+  box-shadow: var(--shadow2);
+  display:grid;
+  place-items:center;
+  font-size: 26px;
+  opacity:.35;
+}
+body.dark .sticker{ background: rgba(255,255,255,.06); }
+.sticker.unlocked{ opacity:1; }
+
