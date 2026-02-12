@@ -159,6 +159,7 @@ body.dark .b3{ background: rgba(255,180,210,.14); opacity:.40; }
 .btn.primary{ background: var(--primary); color: var(--primaryText); border-color: transparent; }
 .btn.ghost{ background: rgba(255,255,255,.40); }
 body.dark .btn.ghost{ background: rgba(255,255,255,.08); }
+.btn:disabled{ opacity:.55; cursor:not-allowed; }
 
 /* Home Hero */
 .hero{
@@ -313,7 +314,6 @@ body.dark .tab{ background: rgba(255,255,255,.08); }
 @keyframes screenOut{
   to{ opacity:0; transform: translateY(6px); filter: blur(2px); }
 }
-
 @media (prefers-reduced-motion: reduce){
   .screen.show, .screen.out, .panel.show{ animation:none !important; transform:none !important; filter:none !important; }
 }
@@ -456,12 +456,11 @@ body.dark .nav{ background: rgba(255,255,255,.10); }
 @keyframes ripple{ to{ opacity:0; transform: translate(-50%,-50%) scale(9); } }
 
 /* ===========================
-   Arcade 10/10 – Game UI
+   Arcade – Game UI
    =========================== */
-
 .gameArea{
   margin-top:14px;
-  min-height:320px;
+  min-height:340px;
   border-radius:20px;
   border:1px solid var(--btnStroke);
   background: rgba(255,255,255,.22);
@@ -488,13 +487,14 @@ body.dark .gameArea{ background: rgba(255,255,255,.04); }
   background: rgba(0,0,0,.06);
   padding:10px 12px;
   text-align:right;
-  min-width: 100px;
+  min-width: 120px;
 }
 body.dark .gScore{ background: rgba(255,255,255,.08); }
 .gScore small{ display:block; color: var(--muted); font-weight:850; }
 .gScore strong{ display:block; font-size:18px; font-weight:980; margin-top:2px; }
 
-.gRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.gRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+.sep{ flex: 1 1 auto; }
 
 .pad{
   border-radius:18px;
@@ -529,7 +529,6 @@ body.dark .pad{ background: rgba(255,255,255,.03); }
 }
 body.dark .tileBtn{ background: rgba(255,255,255,.06); }
 .tileBtn:active{ transform: scale(.96); }
-
 .glow{
   outline: 2px solid rgba(255,255,255,.65);
   box-shadow: 0 0 0 10px rgba(255,255,255,.10);
@@ -547,7 +546,6 @@ body.dark .tileBtn{ background: rgba(255,255,255,.06); }
   opacity:.3;
 }
 body.dark .pulseDot{ background: rgba(255,255,255,.12); }
-
 .pulseAnim{ animation: pulse 1.25s ease-in-out infinite; }
 @keyframes pulse{
   0%{ transform:translate(-50%,-50%) scale(.70); opacity:.25; }
@@ -649,6 +647,95 @@ body.dark .sticker{ background: rgba(255,255,255,.06); }
 .sticker.unlocked{ opacity:1; }
 
 /* ===========================
+   Memory Premium
+   =========================== */
+.memTopBar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+}
+.memPill{
+  border-radius:999px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.44);
+  box-shadow: var(--shadow2);
+  padding: 10px 12px;
+  font-weight:950;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+body.dark .memPill{ background: rgba(255,255,255,.10); }
+
+.memStars{ letter-spacing: 1px; }
+.memMsg{
+  margin-top:10px;
+  border-radius: 18px;
+  border:1px solid var(--btnStroke);
+  background: rgba(255,255,255,.20);
+  padding: 12px;
+  color: var(--muted);
+  font-weight: 850;
+  line-height:1.45;
+}
+body.dark .memMsg{ background: rgba(255,255,255,.04); }
+
+.memGrid{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+  grid-template-columns: repeat(var(--cols), 1fr);
+}
+.memCard{
+  aspect-ratio: 1/1;
+  border-radius: 18px;
+  perspective: 900px;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+.memInner{
+  width:100%; height:100%;
+  position:relative;
+  transform-style: preserve-3d;
+  transition: transform 260ms cubic-bezier(.2,.9,.2,1);
+}
+.memCard.flipped .memInner{ transform: rotateY(180deg); }
+.memFace{
+  position:absolute; inset:0;
+  border-radius: 18px;
+  border:1px solid var(--btnStroke);
+  box-shadow: var(--shadow2);
+  display:grid;
+  place-items:center;
+  backface-visibility:hidden;
+}
+.memBack{
+  background: rgba(255,255,255,.30);
+  font-weight:980;
+  color: rgba(0,0,0,.55);
+}
+body.dark .memBack{ background: rgba(255,255,255,.06); color: rgba(255,255,255,.62); }
+
+.memFront{
+  background: rgba(255,255,255,.40);
+  transform: rotateY(180deg);
+  font-size: 28px;
+}
+body.dark .memFront{ background: rgba(255,255,255,.08); }
+
+.memCard.matched{ cursor:default; }
+.memCard.matched .memInner{ transform: rotateY(180deg); }
+.memCard.matched .memFace{ opacity:.72; }
+
+.memCard.crown .memFront{
+  box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 0 0 12px rgba(255,255,255,.08);
+}
+
+/* ===========================
    Surprise Modal
    =========================== */
 .sModal{
@@ -734,4 +821,53 @@ body.dark .revealBox{ background: rgba(255,255,255,.08); }
   text-align:center;
   padding: 10px 0;
 }
-.bigEmoji{ font-size: 54px; anim
+.bigEmoji{ font-size: 54px; animation: popIn 260ms ease-out; }
+@keyframes popIn{ from{transform:scale(.85);opacity:.2} to{transform:scale(1);opacity:1} }
+
+.softBtn{
+  border:1px solid var(--btnStroke);
+  background: var(--btnBg);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 950;
+  cursor:pointer;
+  box-shadow: var(--shadow2);
+}
+.progressBar{
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.08);
+  border: 1px solid var(--btnStroke);
+  overflow:hidden;
+}
+body.dark .progressBar{ background: rgba(255,255,255,.08); }
+.progressFill{ height:100%; width:0%; background: rgba(255,255,255,.85); }
+body.dark .progressFill{ background: rgba(255,255,255,.65); }
+
+.cardFlip{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+.miniTile{
+  aspect-ratio: 1/1;
+  border-radius: 18px;
+  border: 1px solid var(--btnStroke);
+  background: rgba(255,255,255,.36);
+  box-shadow: var(--shadow2);
+  display:grid;
+  place-items:center;
+  font-size: 28px;
+  cursor:pointer;
+  user-select:none;
+}
+body.dark .miniTile{ background: rgba(255,255,255,.06); }
+
+.confettiDot{
+  position: fixed;
+  width: 10px; height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.9);
+  pointer-events:none;
+  z-index: 1200;
+  animation: confetti 900ms ease-out forwards;
+}
+@keyframes confetti{
+  to{ transform: translate(var(--dx), var(--dy)) scale(.6); opacity:0; }
+}
