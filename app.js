@@ -349,3 +349,1168 @@ const gStickers= $("#gStickers");
 
   const EMOJIS = ["🧸","👑","✨","🫖","🌙","💖","🌸","🍯","🍵","🧣","🤍","🎀","⭐️","💌","🌼","🥺"];
   const SWEET = [
+    "Du machst das so gut. 🤍",
+    "Leise, aber stark. ✨",
+    "Ein Match – ein kleines Lächeln. 🙂",
+    "Sehr schön, Prenses. 👑",
+    "Warm. Ruhig. Genau richtig. 🫖",
+    "Du bist mein Lieblingsgefühl. 💖"
+  ];
+
+  let levelIdx = 0;
+  let deck = [];
+  let lock = false;
+  let first = null;
+  let matched = 0;
+  let moves = 0;
+  let startT = 0;
+  let timer = null;
+  let running = false;
+
+  gMemory.innerHTML = "";
+  gMemory.appendChild(gTop(
+    "1) Memory Premium",
+    "Level wählen → Paare finden. Timer + Moves. Bestwerte werden gespeichert.",
+    "Level",
+    "memLevel"
+  ));
+
+  const topBar = document.createElement("div");
+  topBar.className = "memTopBar";
+  topBar.innerHTML = `
+    <div class="memPill">
+      <span>⏱ <span id="memTime">00:00</span></span>
+      <span>•</span>
+      <span>Moves <span id="memMoves">0</span></span>
+      <span>•</span>
+      <span class="memStars" id="memStars">☆☆☆</span>
+    </div>
+    <div class="memPill">
+      <span>Best:</span>
+      <span id="memBest">—</span>
+    </div>
+  `;
+
+  const msg = document.createElement("div");
+  msg.className = "memMsg";
+  msg.id = "memMsg";
+  msg.textContent = "Wähl ein Level und starte. 🧸";
+
+  const grid = document.createElement("div");
+  grid.className = "memGrid";
+  grid.style.setProperty("--cols", String(LEVELS[levelIdx].cols));
+
+  const lvlBtn = mkBtn("Level: Easy", "btn");
+  const startBtn = mkBtn("Start", "btn primary");
+  const newBtn = mkBtn("Neu mischen", "btn ghost");
+  const resetBestBtn = mkBtn("Reset Best", "btn ghost");
+
+  const controls = gRow(lvlBtn, startBtn, newBtn, resetBestBtn);
+
+  gMemory.appendChild(topBar);
+  gMemory.appendChild(msg);
+  gMemory.appendChild(grid);
+  gMemory.appendChild(controls);
+
+  function bestKey(id){ return `mem_best_${id}`; }
+  function readBest(id){
+    try { return JSON.parse(localStorage.getItem(bestKey(id)) || "null"); } catch { return null; }
+  }
+  function writeBest(id, obj){
+    localStorage.setItem(bestKey(id), JSON.stringify(obj));
+  }
+  function resetBest(id){
+    localStorage.removeItem(bestKey(id));
+  }
+
+  function fmtTime(ms){
+    const s = Math.max(0, Math.floor(ms/1000));
+    return `${pad2(Math.floor(s/60))}:${pad2(s%60)}`;
+  }
+
+  function updateBestUI(){
+    const L = LEVELS[levelIdx];
+    $("#memLevel").textContent = L.name;
+    const best = readBest(L.id);
+    $("#memBest").textContent = best ? `${best.time} • ${best.moves} moves • ${best.stars}` : "—";
+  }
+
+  function starsFor(moves, ms, pairs){
+    // thresholds tuned per size
+    const baseMoves = pairs * 2;          // theoretical minimum
+    const goodMoves = baseMoves + pairs;  // +1 per pair
+    const okMoves   = baseMoves + pairs*2;
+
+    const secs = ms/1000;
+    const goodTime = pairs * 7;           // cozy but fair
+    const okTime   = pairs * 11;
+
+    let s = 0;
+    if(moves <= okMoves && secs <= okTime) s = 1;
+    if(moves <= goodMoves && secs <= goodTime) s = 2;
+    if(moves <= baseMoves + Math.floor(pairs/2) && secs <= goodTime*0.85) s = 3;
+
+    return "★".repeat(s) + "☆".repeat(3-s);
+  }
+
+  function setMessage(t){
+    msg.textContent = t;
+  }
+
+  function stopTimer(){
+    running = false;
+    if(timer) clearInterval(timer);
+    timer = null;
+  }
+
+  function startTimer(){
+    stopTimer();
+    running = true;
+    startT = now();
+    timer = setInterval(()=>{
+      $("#memTime").textContent = fmtTime(now() - startT);
+      $("#memStars").textContent = starsFor(moves, now() - startT, LEVELS[levelIdx].pairs);
+    }, 250);
+  }
+
+  function hardResetRound(keepLevel=true){
+    stopTimer();
+    lock = false;
+    first = null;
+    matched = 0;
+    moves = 0;
+    $("#memMoves").textContent = "0";
+    $("#memTime").textContent = "00:00";
+    $("#memStars").textContent = "☆☆☆";
+    setMessage("Bereit. Tippe Start. 🤍");
+
+    const L = LEVELS[levelIdx];
+    grid.style.setProperty("--cols", String(L.cols));
+    grid.innerHTML = "";
+
+    const chosen = shuffle(EMOJIS).slice(0, L.pairs);
+    // crown pair always included if possible
+    if(!chosen.includes("👑")) chosen[0] = "👑";
+
+    deck = shuffle([...chosen, ...chosen]);
+    deck.forEach((sym, i)=>{
+      const card = document.createElement("div");
+      card.className = "memCard" + (sym === "👑" ? " crown" : "");
+      card.dataset.sym = sym;
+      card.dataset.i = String(i);
+      card.innerHTML = `
+        <div class="memInner">
+          <div class="memFace memBack">✦</div>
+          <div class="memFace memFront">${sym}</div>
+        </div>
+      `;
+      card.addEventListener("click", ()=> onPick(card));
+      grid.appendChild(card);
+    });
+
+    updateBestUI();
+  }
+
+  function onPick(card){
+    if(lock) return;
+    if(card.classList.contains("matched")) return;
+    if(card.classList.contains("flipped")) return;
+
+    if(!running){
+      setMessage("Los geht’s. Ruhig bleiben. 🫖");
+      startTimer();
+    }
+
+    tick(520,45);
+    card.classList.add("flipped");
+
+    if(!first){
+      first = card;
+      return;
+    }
+
+    moves++;
+    $("#memMoves").textContent = String(moves);
+
+    const a = first;
+    const b = card;
+    first = null;
+
+    const same = a.dataset.sym === b.dataset.sym;
+
+    if(same){
+      // match
+      a.classList.add("matched");
+      b.classList.add("matched");
+      matched += 2;
+
+      // reward
+      const isCrown = a.dataset.sym === "👑";
+      award(isCrown ? 4 : 2, isCrown ? "Crown!" : "Match");
+      unlockSticker();
+
+      setMessage(isCrown ? "👑 Crown Match! Prenses energy. ✨" : pick(SWEET));
+
+      if(isCrown){
+        const r = b.getBoundingClientRect();
+        confettiBurst(r.left + r.width/2, r.top + r.height/2, 26);
+      }
+
+      // finished
+      if(matched === deck.length){
+        stopTimer();
+        const ms = now() - startT;
+        const L = LEVELS[levelIdx];
+        const stars = starsFor(moves, ms, L.pairs);
+        $("#memStars").textContent = stars;
+
+        const timeStr = fmtTime(ms);
+        setMessage(`Level clear! ${stars} • ${timeStr} • ${moves} moves 🤍`);
+        showToast("Perfect ✨");
+
+        // store best (prefer less time, then less moves)
+        const best = readBest(L.id);
+        const candidate = { time: timeStr, ms, moves, stars };
+        const better =
+          !best ||
+          (candidate.ms < best.ms) ||
+          (candidate.ms === best.ms && candidate.moves < best.moves);
+
+        if(better){
+          writeBest(L.id, candidate);
+          updateBestUI();
+          showToast("New Best ✨");
+        }
+
+        // extra bonus for finishing
+        award(5, "Clear");
+      }
+      return;
+    }
+
+    // mismatch
+    comboReset();
+    lock = true;
+    setMessage("Ganz ruhig… nochmal 🙂");
+    setTimeout(()=>{
+      a.classList.remove("flipped");
+      b.classList.remove("flipped");
+      lock = false;
+    }, 520);
+  }
+
+  lvlBtn.onclick = ()=>{
+    levelIdx = (levelIdx + 1) % LEVELS.length;
+    const L = LEVELS[levelIdx];
+    lvlBtn.textContent = `Level: ${L.name}`;
+    $("#memLevel").textContent = L.name;
+    hardResetRound();
+    tick(520,45);
+  };
+
+  startBtn.onclick = ()=>{
+    if(!running){
+      setMessage("Okay… langsam starten. ✨");
+      startTimer();
+      tick(520,45);
+    }
+  };
+
+  newBtn.onclick = ()=>{
+    comboReset();
+    hardResetRound();
+    showToast("Neu gemischt");
+    tick(520,45);
+  };
+
+  resetBestBtn.onclick = ()=>{
+    const L = LEVELS[levelIdx];
+    resetBest(L.id);
+    updateBestUI();
+    showToast("Best reset");
+    tick(520,45);
+  };
+
+  // init
+  lvlBtn.textContent = `Level: ${LEVELS[levelIdx].name}`;
+  $("#memLevel").textContent = LEVELS[levelIdx].name;
+  hardResetRound();
+})();
+
+// =====================================================
+// 2) Pattern Flow
+// =====================================================
+(function initPattern(){
+  let round = 1, score = 0;
+  let seq = [], input = [];
+  let locked = true;
+
+  gPattern.innerHTML = "";
+  gPattern.appendChild(gTop("2) Pattern Flow", "Merken → antippen. Wird langsam länger. Kein Timer.", "Round", "pRound"));
+
+  const pad = document.createElement("div");
+  pad.className = "grid4";
+
+  const symbols = ["✦","●","◆","▲"];
+  const btns = symbols.map(sym=>{
+    const b = document.createElement("div");
+    b.className = "tileBtn";
+    b.textContent = sym;
+    b.onclick = ()=>{
+      if(locked) return;
+      tick(520,45);
+      input.push(sym);
+
+      if(sym !== seq[input.length-1]){
+        comboReset();
+        showToast("Oops — nochmal ruhig 🙂");
+        locked = true;
+        input = [];
+        setTimeout(showSeq, 420);
+        return;
+      }
+
+      if(input.length === seq.length){
+        score++;
+        $("#pScore").textContent = String(score);
+        award(2, "Richtig");
+        round++;
+        $("#pRound").textContent = String(round);
+        input = [];
+        locked = true;
+        setTimeout(()=>{
+          seq.push(pick(symbols));
+          showSeq();
+        }, 420);
+      }
+    };
+    pad.appendChild(b);
+    return b;
+  });
+
+  const scorePill = document.createElement("div");
+  scorePill.style.marginTop = "10px";
+  scorePill.innerHTML = `<div class="pill">Score <span id="pScore">0</span></div>`;
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{
+    comboReset();
+    round = 1; score = 0;
+    $("#pRound").textContent = "1";
+    $("#pScore").textContent = "0";
+    seq = [pick(symbols)];
+    input = [];
+    showToast("Reset");
+    showSeq();
+  };
+
+  gPattern.appendChild(pad);
+  gPattern.appendChild(scorePill);
+  gPattern.appendChild(gRow(reset));
+
+  function flash(sym){
+    const b = btns.find(x=>x.textContent===sym);
+    if(!b) return;
+    b.classList.add("glow");
+    setTimeout(()=>b.classList.remove("glow"), 220);
+  }
+
+  function showSeq(){
+    locked = true;
+    let i = 0;
+    const timer = setInterval(()=>{
+      flash(seq[i]);
+      tick(420,35);
+      i++;
+      if(i >= seq.length){
+        clearInterval(timer);
+        setTimeout(()=> locked = false, 240);
+      }
+    }, 420);
+  }
+
+  $("#pRound").textContent = "1";
+  seq = [pick(symbols)];
+  showSeq();
+})();
+
+// =====================================================
+// 3) Cozy Builder
+// =====================================================
+(function initBuilder(){
+  gBuilder.innerHTML = "";
+  gBuilder.appendChild(gTop("3) Cozy Builder", "Zieh 3 Items in die Slots: 🫖 + 🧣 + 🧸 (Cozy-Set).", "Wins", "bWins"));
+
+  let wins = 0;
+  const items = ["🫖","🧣","🧸","🌙","✨","💌"];
+  const tray = document.createElement("div");
+  tray.className = "grid4";
+
+  const zone = document.createElement("div");
+  zone.className = "dropZone";
+  zone.innerHTML = `
+    <div>
+      <div class="zoneTitle">Cozy Set</div>
+      <div class="gSub">Zieh die richtigen 3 rein (oder tippe sie).</div>
+    </div>
+    <div class="zoneSlots">
+      <div class="slot" data-slot="0">+</div>
+      <div class="slot" data-slot="1">+</div>
+      <div class="slot" data-slot="2">+</div>
+    </div>
+  `;
+
+  const state = ["","",""];
+
+  function clear(){
+    for(let i=0;i<3;i++) state[i] = "";
+    zone.querySelectorAll(".slot").forEach(s=>s.textContent="+");
+  }
+  function check(){
+    const want = ["🫖","🧣","🧸"].sort().join("");
+    const have = state.slice().sort().join("");
+    if(state.every(Boolean) && have === want){
+      wins++;
+      $("#bWins").textContent = String(wins);
+      award(4, "Cozy Set");
+      unlockSticker();
+      showToast("Perfekt. Warm & safe. 🤍");
+      clear();
+    }
+  }
+  function place(sym){
+    const idx = state.findIndex(x=>!x);
+    if(idx === -1) return;
+    state[idx]=sym;
+    zone.querySelector(`.slot[data-slot="${idx}"]`).textContent = sym;
+    tick(520,45);
+    check();
+  }
+
+  items.forEach(sym=>{
+    const t = document.createElement("div");
+    t.className = "tileBtn";
+    t.textContent = sym;
+    t.draggable = true;
+    t.addEventListener("dragstart",(e)=> e.dataTransfer.setData("text/plain", sym));
+    t.addEventListener("click", ()=> place(sym));
+    tray.appendChild(t);
+  });
+
+  zone.addEventListener("dragover",(e)=>e.preventDefault());
+  zone.addEventListener("drop",(e)=>{
+    e.preventDefault();
+    const sym = e.dataTransfer.getData("text/plain");
+    place(sym);
+  });
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); clear(); showToast("Reset"); };
+
+  gBuilder.appendChild(zone);
+  gBuilder.appendChild(tray);
+  gBuilder.appendChild(gRow(reset));
+})();
+
+// =====================================================
+// 4) Find the Crown
+// =====================================================
+(function initCrown(){
+  gCrown.innerHTML = "";
+  gCrown.appendChild(gTop("4) Find the Crown", "Eine Karte hat die 👑. Ruhig tippen.", "Wins", "cWins"));
+
+  let wins=0, level=1;
+  const grid = document.createElement("div");
+  grid.className = "grid4";
+
+  function round(){
+    grid.innerHTML = "";
+    const cards = clamp(3 + Math.floor(level/2), 3, 8);
+    const crownIndex = Math.floor(Math.random()*cards);
+
+    for(let i=0;i<cards;i++){
+      const t = document.createElement("div");
+      t.className = "tileBtn";
+      t.textContent = "✦";
+      t.onclick = ()=>{
+        tick(520,45);
+        grid.querySelectorAll(".tileBtn").forEach(x=>x.onclick=null);
+
+        if(i===crownIndex){
+          t.textContent = "👑";
+          wins++; level++;
+          $("#cWins").textContent = String(wins);
+          award(3, "Treffer");
+          unlockSticker();
+          setTimeout(round, 520);
+        }else{
+          comboReset();
+          t.textContent = "•";
+          grid.children[crownIndex].textContent = "👑";
+          showToast("Fast 🙂 nochmal");
+          setTimeout(round, 700);
+        }
+      };
+      grid.appendChild(t);
+    }
+  }
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); wins=0; level=1; $("#cWins").textContent="0"; round(); };
+
+  gCrown.appendChild(grid);
+  gCrown.appendChild(gRow(reset));
+  round();
+})();
+
+// =====================================================
+// 5) Cozy Reaction
+// =====================================================
+(function initReaction(){
+  gReaction.innerHTML = "";
+  gReaction.appendChild(gTop("5) Cozy Reaction", "Tippe, wenn der Puls am hellsten ist. Kein Stress.", "Perfect", "rPerfect"));
+
+  let perfect=0;
+  const pad = document.createElement("div");
+  pad.className="pad";
+
+  const dot = document.createElement("div");
+  dot.className="pulseDot pulseAnim";
+  pad.appendChild(dot);
+
+  let phase = 0;
+  const start = performance.now();
+  function loop(t){
+    const s = (t-start)/1250;
+    phase = s - Math.floor(s);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  pad.addEventListener("click", ()=>{
+    tick(520,45);
+    const dist = Math.abs(phase - 0.5);
+    if(dist < 0.08){
+      perfect++;
+      $("#rPerfect").textContent = String(perfect);
+      award(3, "Perfect");
+      unlockSticker();
+    }else if(dist < 0.14){
+      award(1, "Nice");
+    }else{
+      comboReset();
+      showToast("Zu früh/zu spät 🙂");
+    }
+  });
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); perfect=0; $("#rPerfect").textContent="0"; showToast("Reset"); };
+
+  gReaction.appendChild(pad);
+  gReaction.appendChild(gRow(reset));
+})();
+
+// =====================================================
+// 6) Tile Merge
+// =====================================================
+(function initMerge(){
+  gMerge.innerHTML = "";
+  gMerge.appendChild(gTop("6) Tile Merge", "Tippe 2 gleiche Icons nacheinander → sie mergen.", "Level", "mLevel"));
+
+  const chain = ["🫖","🍵","✨","🧸","👑"];
+  let level = 0;
+  let last = null;
+
+  const tray = document.createElement("div");
+  tray.className = "grid4";
+
+  function spawn(){
+    tray.innerHTML="";
+    const pool = chain.slice(0, Math.min(3, level+2));
+
+    for(let i=0;i<8;i++){
+      const sym = pick(pool);
+      const t = document.createElement("div");
+      t.className="tileBtn";
+      t.textContent = sym;
+      t.onclick = ()=>{
+        tick(520,45);
+        if(!last){
+          last = sym;
+          t.classList.add("glow");
+          return;
+        }
+        if(sym === last){
+          const idx = chain.indexOf(sym);
+          const next = chain[Math.min(chain.length-1, idx+1)];
+          showToast(`${sym}+${sym} → ${next}`);
+          award(2, "Merge");
+          unlockSticker();
+          if(next === "👑") level = Math.min(chain.length-1, level+1);
+          $("#mLevel").textContent = String(level+1);
+        }else{
+          comboReset();
+          showToast("Nicht gleich 🙂");
+        }
+        last = null;
+        spawn();
+      };
+      tray.appendChild(t);
+    }
+  }
+
+  $("#mLevel").textContent = "1";
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); level=0; last=null; $("#mLevel").textContent="1"; spawn(); };
+
+  gMerge.appendChild(tray);
+  gMerge.appendChild(gRow(reset));
+  spawn();
+})();
+
+// =====================================================
+// 7) Mood Catcher
+// =====================================================
+(function initCatcher(){
+  gCatcher.innerHTML = "";
+  gCatcher.appendChild(gTop("7) Mood Catcher", "Tippe nur die „guten“: 💖 ✨ 🌙 — meide 😷 🌧 💀", "Caught", "kCaught"));
+
+  let caught=0;
+  const pad = document.createElement("div");
+  pad.className="pad";
+  gCatcher.appendChild(pad);
+
+  const good = ["💖","✨","🌙","🧸","💛"];
+  const bad  = ["😷","🌧","💀","🔥"];
+
+  function spawn(){
+    const isBad = Math.random() < 0.25;
+    const el = document.createElement("div");
+    el.className="faller";
+    el.textContent = isBad ? pick(bad) : pick(good);
+    el.style.setProperty("--x", rand(8,92) + "%");
+    el.style.setProperty("--s", rand(22,40) + "px");
+    el.style.setProperty("--d", rand(3.8,6.2) + "s");
+    pad.appendChild(el);
+
+    el.onclick = ()=>{
+      tick(520,45);
+      if(isBad){
+        comboReset();
+        showToast("Oops 🙂");
+      }else{
+        caught++;
+        $("#kCaught").textContent = String(caught);
+        award(1, "Nice");
+      }
+      el.remove();
+    };
+
+    setTimeout(()=>el.remove(), 7000);
+    setTimeout(spawn, rand(450,850));
+  }
+  spawn();
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); caught=0; $("#kCaught").textContent="0"; pad.innerHTML=""; showToast("Reset"); };
+
+  gCatcher.appendChild(gRow(reset));
+})();
+
+// =====================================================
+// 8) Mini Story
+// =====================================================
+(function initStory(){
+  gStory.innerHTML = "";
+  gStory.appendChild(gTop("8) Mini Story", "Du wählst – die App reagiert. Kleine Szene + Message.", "Scenes", "sScenes"));
+
+  let scenes=0;
+  const box = document.createElement("div");
+  box.className="revealBox";
+  box.innerHTML = `
+    <div style="font-weight:950">Was hilft Prenses heute am meisten?</div>
+    <div class="gSub" style="margin-top:6px">Wähle einfach – es gibt kein „falsch“.</div>
+    <div id="storyOut" style="margin-top:12px;font-weight:900;line-height:1.6;"></div>
+  `;
+  gStory.appendChild(box);
+
+  function choose(kind){
+    tick(520,45);
+    scenes++;
+    $("#sScenes").textContent = String(scenes);
+    const out = $("#storyOut");
+    const map = {
+      tea: "🫖 Tee-Moment: warm, ruhig, sicher. Ich bin da.",
+      hug: "🧸 Umarmung: leise, weich, ohne Druck. 🤍",
+      sleep:"😴 Schlaf: der Körper macht Magie. Du musst nur ruhen.",
+      stars:"🌙 Sterne: langsam atmen… alles wird wieder leichter."
+    };
+    out.textContent = map[kind];
+    award(2, "Story");
+    unlockSticker();
+  }
+
+  const b1 = mkBtn("🫖 Tee");
+  const b2 = mkBtn("🧸 Umarmung");
+  const b3 = mkBtn("😴 Schlaf");
+  const b4 = mkBtn("🌙 Sterne");
+  b1.onclick=()=>choose("tea");
+  b2.onclick=()=>choose("hug");
+  b3.onclick=()=>choose("sleep");
+  b4.onclick=()=>choose("stars");
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); scenes=0; $("#sScenes").textContent="0"; $("#storyOut").textContent=""; showToast("Reset"); };
+
+  gStory.appendChild(gRow(b1,b2,b3,b4, reset));
+})();
+
+// =====================================================
+// 9) Zen Connect
+// =====================================================
+(function initConnect(){
+  gConnect.innerHTML = "";
+  gConnect.appendChild(gTop("9) Zen Connect", "Verbinde gleiche Symbole. 3 Paare pro Runde.", "Wins", "zWins"));
+
+  let wins=0;
+  const board = document.createElement("div");
+  board.className="connectBoard";
+  gConnect.appendChild(board);
+
+  let active = null;
+  let pairs = [];
+
+  function clearBoard(){
+    board.innerHTML = "";
+    active = null;
+    pairs = [];
+  }
+
+  function newRound(){
+    clearBoard();
+    const symbols = ["👑","🧸","✨"];
+    const used = new Set();
+
+    function place(sym){
+      let x,y,key;
+      do{
+        x = Math.floor(rand(20, 240));
+        y = Math.floor(rand(20, 220));
+        key = `${Math.floor(x/30)}-${Math.floor(y/30)}`;
+      }while(used.has(key));
+      used.add(key);
+
+      const n = document.createElement("div");
+      n.className="node";
+      n.textContent = sym;
+      n.style.left = x + "px";
+      n.style.top  = y + "px";
+      n.dataset.sym = sym;
+      n.onclick = ()=>pickNode(n);
+      board.appendChild(n);
+    }
+
+    symbols.forEach(sym=>{ place(sym); place(sym); });
+  }
+
+  function drawLine(a,b){
+    const ra = a.getBoundingClientRect();
+    const rb = b.getBoundingClientRect();
+    const r0 = board.getBoundingClientRect();
+
+    const ax = ra.left + ra.width/2 - r0.left;
+    const ay = ra.top + ra.height/2 - r0.top;
+    const bx = rb.left + rb.width/2 - r0.left;
+    const by = rb.top + rb.height/2 - r0.top;
+
+    const dx = bx-ax, dy = by-ay;
+    const len = Math.hypot(dx,dy);
+    const ang = Math.atan2(dy,dx) * 180/Math.PI;
+
+    const line = document.createElement("div");
+    line.className="line";
+    line.style.left = ax + "px";
+    line.style.top  = ay + "px";
+    line.style.width = len + "px";
+    line.style.transform = `rotate(${ang}deg)`;
+    board.appendChild(line);
+  }
+
+  function pickNode(n){
+    tick(520,45);
+    if(!active){
+      active = n;
+      n.classList.add("glow");
+      return;
+    }
+
+    const a = active;
+    a.classList.remove("glow");
+    active = null;
+
+    if(a === n) return;
+
+    if(a.dataset.sym === n.dataset.sym){
+      drawLine(a,n);
+      pairs.push(a.dataset.sym);
+      award(2, "Connected");
+      unlockSticker();
+      a.onclick = null; n.onclick = null;
+      a.style.opacity = ".55";
+      n.style.opacity = ".55";
+
+      if(pairs.length >= 3){
+        wins++;
+        $("#zWins").textContent = String(wins);
+        showToast("Round clear ✨");
+        setTimeout(newRound, 600);
+      }
+    }else{
+      comboReset();
+      showToast("Nicht gleich 🙂");
+    }
+  }
+
+  const reset = mkBtn("Reset", "btn ghost");
+  reset.onclick = ()=>{ comboReset(); wins=0; $("#zWins").textContent="0"; newRound(); };
+
+  gConnect.appendChild(gRow(reset));
+  newRound();
+})();
+
+// =====================================================
+// 10) Sticker Book
+// =====================================================
+function renderStickers(){
+  gStickers.innerHTML = "";
+  gStickers.appendChild(gTop("10) Sticker Book", "Du schaltest Sticker frei, wenn du spielst. (speichert lokal)", "Unlocked", "stUnlocked"));
+
+  const unlocked = loadUnlocked();
+  $("#stUnlocked").textContent = String(unlocked.length);
+
+  const grid = document.createElement("div");
+  grid.className="stickerGrid";
+
+  STICKERS.forEach((s,i)=>{
+    const d = document.createElement("div");
+    d.className = "sticker" + (unlocked.includes(i) ? " unlocked" : "");
+    d.textContent = unlocked.includes(i) ? s : "✦";
+    grid.appendChild(d);
+  });
+
+  const claim = mkBtn("Random Sticker", "btn");
+  claim.onclick = ()=>{ tick(520,45); unlockSticker(); };
+
+  const wipe = mkBtn("Reset Stickers", "btn ghost");
+  wipe.onclick = ()=>{
+    comboReset();
+    localStorage.removeItem("unlockedStickers");
+    renderStickers();
+    showToast("Sticker reset");
+  };
+
+  gStickers.appendChild(grid);
+  gStickers.appendChild(gRow(claim, wipe));
+}
+renderStickers();
+
+// ======================
+// Surprise (random + interactive)
+// ======================
+const sModal = $("#sModal");
+const sClose = $("#sClose");
+const sTitle = $("#sTitle");
+const sSub = $("#sSub");
+const sBody = $("#sBody");
+const sActions = $("#sActions");
+
+function openModal(){
+  sModal.classList.add("show");
+  sModal.setAttribute("aria-hidden","false");
+}
+function closeModal(){
+  sModal.classList.remove("show");
+  sModal.setAttribute("aria-hidden","true");
+}
+sClose.addEventListener("click", closeModal);
+sModal.addEventListener("click", (e)=>{ if(e.target === sModal) closeModal(); });
+
+const SURPRISES = ["letter", "holdhug", "pickone", "scratch", "tinyquiz"];
+function pickSurprise(){
+  const last = localStorage.getItem("lastSurprise") || "";
+  let pool = SURPRISES.filter(x => x !== last);
+  if(pool.length === 0) pool = SURPRISES.slice();
+  const chosen = pool[Math.floor(Math.random()*pool.length)];
+  localStorage.setItem("lastSurprise", chosen);
+  return chosen;
+}
+
+function renderSurprise(type){
+  sActions.innerHTML = "";
+  sBody.innerHTML = "";
+
+  if(type === "letter"){
+    sTitle.textContent = "Ein Brief, ganz leise 💌";
+    sSub.textContent = "Tippe auf „Weiter“, um Zeile für Zeile zu öffnen.";
+
+    const lines = [
+      "Prenses…",
+      "heute musst du nicht stark sein.",
+      "Ruh dich aus – ich bin da. Leise, warm, echt.",
+      "Und wenn du lächelst, ist das schon ein Sieg. 🤍"
+    ];
+    let i = 0;
+
+    const box = document.createElement("div");
+    box.className = "revealBox";
+    box.innerHTML = `<div id="letterLine" style="font-weight:900; line-height:1.6;"></div>`;
+    sBody.appendChild(box);
+
+    const btn = document.createElement("button");
+    btn.className = "softBtn";
+    btn.textContent = "Weiter";
+    btn.onclick = ()=>{
+      $("#letterLine").textContent = lines[i];
+      tick(520,45);
+      i++;
+      if(i >= lines.length){
+        btn.textContent = "Fertig ✨";
+        btn.onclick = ()=>{
+          const r = sBody.getBoundingClientRect();
+          confettiBurst(r.left + r.width/2, r.top + 40, 26);
+          award(2, "Sweet");
+          closeModal();
+        };
+      }
+    };
+    sActions.appendChild(btn);
+    btn.click();
+    return;
+  }
+
+  if(type === "holdhug"){
+    sTitle.textContent = "Hold-to-Hug 🧸";
+    sSub.textContent = "Halte gedrückt, bis die Umarmung voll ist.";
+
+    const wrap = document.createElement("div");
+    wrap.className = "bigCenter";
+    wrap.innerHTML = `
+      <div class="bigEmoji">🧸</div>
+      <div class="progressBar"><div class="progressFill" id="hugFill"></div></div>
+      <div style="color:var(--muted);font-weight:800">Hold…</div>
+    `;
+    sBody.appendChild(wrap);
+
+    const btn = document.createElement("button");
+    btn.className = "softBtn";
+    btn.textContent = "Gedrückt halten";
+    sActions.appendChild(btn);
+
+    let p = 0, tmr = null;
+    const fill = ()=> $("#hugFill");
+
+    const start = ()=>{
+      if(tmr) return;
+      tick(420,40);
+      tmr = setInterval(()=>{
+        p = Math.min(100, p + 3);
+        fill().style.width = p + "%";
+        if(p >= 100){
+          clearInterval(tmr); tmr = null;
+          const r = sBody.getBoundingClientRect();
+          confettiBurst(r.left + r.width/2, r.top + r.height/2, 30);
+          sSub.textContent = "Umarmung delivered. Ruh dich aus, Prenses. 🤍";
+          award(5, "Hug");
+          btn.textContent = "Schließen";
+          btn.onpointerdown = null;
+          btn.onpointerup = null;
+          btn.onclick = closeModal;
+        }
+      }, 40);
+    };
+    const stop = ()=>{
+      if(!tmr) return;
+      clearInterval(tmr); tmr = null;
+    };
+
+    btn.onpointerdown = start;
+    btn.onpointerup = stop;
+    btn.onpointercancel = stop;
+    return;
+  }
+
+  if(type === "pickone"){
+    sTitle.textContent = "Wähle 1 Karte ✨";
+    sSub.textContent = "Eine davon ist extra süß – wähl einfach.";
+
+    const options = shuffle([
+      {e:"🌙", t:"Cozy-Night: Du bist sicher. Alles wird leichter."},
+      {e:"🫖", t:"Tee & Ruhe. Ich pass auf dich auf."},
+      {e:"💖", t:"Du bist mein Lieblingsmensch. Punkt."}
+    ]);
+
+    const grid = document.createElement("div");
+    grid.className = "cardFlip";
+
+    options.forEach((o)=>{
+      const tile = document.createElement("div");
+      tile.className = "miniTile";
+      tile.textContent = "✦";
+      tile.onclick = ()=>{
+        grid.querySelectorAll(".miniTile").forEach(t=>t.onclick=null);
+        tile.textContent = o.e;
+
+        const msg = document.createElement("div");
+        msg.style.marginTop = "10px";
+        msg.style.fontWeight = "900";
+        msg.style.lineHeight = "1.5";
+        msg.textContent = o.t;
+        sBody.appendChild(msg);
+
+        tick(560,55);
+        award(3, "Chosen");
+        unlockSticker();
+
+        const r = tile.getBoundingClientRect();
+        confettiBurst(r.left + r.width/2, r.top + r.height/2, 18);
+
+        sActions.innerHTML = "";
+        const closeBtn = document.createElement("button");
+        closeBtn.className = "softBtn";
+        closeBtn.textContent = "Schließen";
+        closeBtn.onclick = closeModal;
+        sActions.appendChild(closeBtn);
+      };
+      grid.appendChild(tile);
+    });
+
+    sBody.appendChild(grid);
+    return;
+  }
+
+  if(type === "scratch"){
+    sTitle.textContent = "Rubbel-Reveal ✨";
+    sSub.textContent = "Tippe 8x – dann wird die Message freigerubbelt.";
+
+    let taps = 0;
+    const target = 8;
+
+    const box = document.createElement("div");
+    box.className = "revealBox";
+    box.innerHTML = `
+      <div class="bigCenter">
+        <div class="bigEmoji">🪄</div>
+        <div class="progressBar"><div class="progressFill" id="scrFill"></div></div>
+        <div id="scrTxt" style="color:var(--muted);font-weight:850">Tap… (0/${target})</div>
+      </div>
+    `;
+    sBody.appendChild(box);
+
+    const update = ()=>{
+      $("#scrFill").style.width = Math.round((taps/target)*100) + "%";
+      $("#scrTxt").textContent = `Tap… (${taps}/${target})`;
+    };
+
+    box.onclick = ()=>{
+      taps++;
+      tick(680,40);
+      update();
+      if(taps >= target){
+        const msg = document.createElement("div");
+        msg.style.marginTop = "10px";
+        msg.style.fontWeight = "900";
+        msg.style.lineHeight = "1.6";
+        msg.textContent = "Prenses… du bist wunderschön, auch wenn du gerade nur ruhst. 🤍";
+        sBody.appendChild(msg);
+
+        const r = sBody.getBoundingClientRect();
+        confettiBurst(r.left + r.width/2, r.top + 50, 26);
+        award(4, "Reveal");
+        unlockSticker();
+
+        sActions.innerHTML = "";
+        const b = document.createElement("button");
+        b.className = "softBtn";
+        b.textContent = "Schließen";
+        b.onclick = closeModal;
+        sActions.appendChild(b);
+
+        box.onclick = null;
+      }
+    };
+
+    const startBtn = document.createElement("button");
+    startBtn.className = "softBtn";
+    startBtn.textContent = "Los geht’s";
+    startBtn.onclick = ()=>showToast("✨");
+    sActions.appendChild(startBtn);
+    return;
+  }
+
+  // tinyquiz
+  if(type === "tinyquiz"){
+    sTitle.textContent = "Mini-Quiz (Cozy) 🌙";
+    sSub.textContent = "Ganz easy. Nur zum Lächeln.";
+
+    const q = pick([
+      {q:"Was ist heute am wichtigsten?", a:["Ruhe","Stress","Druck"], ok:0},
+      {q:"Was hilft dem Körper?", a:["Schlaf","Overthinking","Hektik"], ok:0},
+      {q:"Was bist du, auch wenn du krank bist?", a:["Genug","Zu wenig","Spät dran"], ok:0},
+    ]);
+
+    const box = document.createElement("div");
+    box.className = "revealBox";
+    box.innerHTML = `<div style="font-weight:950">${q.q}</div><div class="gSub" style="margin-top:6px">Tippe eine Antwort.</div>`;
+    sBody.appendChild(box);
+
+    const row = document.createElement("div");
+    row.className = "gRow";
+    q.a.forEach((txt, idx)=>{
+      const b = document.createElement("button");
+      b.className = "softBtn";
+      b.textContent = txt;
+      b.onclick = ()=>{
+        tick(520,45);
+        if(idx === q.ok){
+          showToast("✅ Genau");
+          award(3, "Quiz");
+          unlockSticker();
+          const r = sBody.getBoundingClientRect();
+          confettiBurst(r.left + r.width/2, r.top + 60, 18);
+          sSub.textContent = "Richtig. Du darfst heute einfach nur sein. 🤍";
+        }else{
+          comboReset();
+          showToast("🙂 nochmal");
+          sSub.textContent = "Kein Stress. Versuch’s nochmal.";
+        }
+      };
+      row.appendChild(b);
+    });
+
+    sActions.appendChild(row);
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "softBtn";
+    closeBtn.textContent = "Schließen";
+    closeBtn.onclick = closeModal;
+    sActions.appendChild(closeBtn);
+    return;
+  }
+}
+
+$("#openGift").addEventListener("click", ()=>{
+  if(cozyPoints < unlockTarget) return;
+
+  $("#gift").classList.add("open");
+  $("#giftText").textContent = "Okay… ich öffne es. 👑";
+  showToast("🎁 Surprise!");
+  tick(880,90);
+
+  renderSurprise(pickSurprise());
+  openModal();
+});
+
+// ======================
+// Init
+// ======================
+setPoints(0);
+go("home");
