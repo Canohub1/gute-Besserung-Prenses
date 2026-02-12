@@ -91,20 +91,41 @@
 
     <!-- ARCADE -->
     <section class="screen" data-screen="arcade">
-      <div class="card">
-        <div class="sectionHead">
-          <div>
-            <h2>Mini-Games</h2>
-            <p>Cozy, ohne Stress. Kleine Dopamin-Snacks, aber ruhig.</p>
-          </div>
-          <div class="pill" id="arcadePill">Zen Mode</div>
-        </div>
+  <div class="card">
+    <div class="sectionHead">
+      <div>
+        <h2>Mini-Games</h2>
+        <p>Cozy Arcade • keine Hektik • kleine Dopamin-Snacks</p>
+      </div>
+      <div class="pill">Combo <span id="comboX">x1</span> • Score <span id="arcadeScore">0</span></div>
+    </div>
 
-        <div class="tabs">
-          <button class="tab active" data-tab="bubbles">Zen Bubbles</button>
-          <button class="tab" data-tab="memory">Memory Match</button>
-          <button class="tab" data-tab="trail">Glow Trail</button>
-        </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="pattern">1) Pattern Flow</button>
+      <button class="tab" data-tab="builder">2) Cozy Builder</button>
+      <button class="tab" data-tab="crown">3) Find the Crown</button>
+      <button class="tab" data-tab="reaction">4) Cozy Reaction</button>
+      <button class="tab" data-tab="merge">5) Tile Merge</button>
+      <button class="tab" data-tab="catcher">6) Mood Catcher</button>
+      <button class="tab" data-tab="story">7) Mini Story</button>
+      <button class="tab" data-tab="connect">8) Zen Connect</button>
+      <button class="tab" data-tab="daily">9) Daily Challenge</button>
+      <button class="tab" data-tab="stickers">10) Sticker Book</button>
+    </div>
+
+    <div class="panel show" data-panel="pattern"><div class="gameArea" id="gPattern"></div></div>
+    <div class="panel" data-panel="builder"><div class="gameArea" id="gBuilder"></div></div>
+    <div class="panel" data-panel="crown"><div class="gameArea" id="gCrown"></div></div>
+    <div class="panel" data-panel="reaction"><div class="gameArea" id="gReaction"></div></div>
+    <div class="panel" data-panel="merge"><div class="gameArea" id="gMerge"></div></div>
+    <div class="panel" data-panel="catcher"><div class="gameArea" id="gCatcher"></div></div>
+    <div class="panel" data-panel="story"><div class="gameArea" id="gStory"></div></div>
+    <div class="panel" data-panel="connect"><div class="gameArea" id="gConnect"></div></div>
+    <div class="panel" data-panel="daily"><div class="gameArea" id="gDaily"></div></div>
+    <div class="panel" data-panel="stickers"><div class="gameArea" id="gStickers"></div></div>
+  </div>
+</section>
+
 
         <!-- BUBBLES -->
         <div class="panel show" data-panel="bubbles">
@@ -247,5 +268,6 @@
   
 </body>
 </html>
+
 
 
